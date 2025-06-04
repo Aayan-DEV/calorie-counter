@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',  # Required for allauth
+    'django_extensions',
     
     # Allauth apps
     'allauth',
@@ -217,24 +218,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 NUTRITION_API_URL = 'https://calorie-counter-api-production.up.railway.app'
 
 NUTRITION_API_KEY = config('NUTRITION_API_KEY')
-
-# Add httpx for async requests
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sites',  # Required for allauth
-    'django_extensions',
-    
-    # Allauth apps
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    
-    # Your apps
-    'trackgrams',
-]
