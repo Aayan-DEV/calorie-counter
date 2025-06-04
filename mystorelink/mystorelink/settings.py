@@ -32,12 +32,14 @@ CSRF_TRUSTED_ORIGINS = [
     "http://192.168.0.16:8000"
 ]
 
-# Database configuration for Railway
-if 'DATABASE_URL' in os.environ and os.environ.get('DATABASE_URL'):
+# Database configuration using Supabase PostgreSQL
+if 'SUPABASE_DATABASE_URL' in os.environ and os.environ.get('SUPABASE_DATABASE_URL'):
+    # Use Supabase PostgreSQL for both local and production
     DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+        'default': dj_database_url.parse(os.environ.get('SUPABASE_DATABASE_URL'))
     }
 else:
+    # Fallback to SQLite for development if Supabase URL not provided
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -123,14 +125,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'mystorelink.wsgi.application'
-
-# Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
