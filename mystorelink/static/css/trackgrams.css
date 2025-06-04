@@ -1,0 +1,20 @@
+/* Custom styles for Track Grams app */
+.calorie-card {
+    background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+}
+
+.food-item {
+    transition: all 0.2s ease;
+}
+
+.food-item:hover {
+    background-color: #f3f4f6;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.nutrition-badge {
+    @apply inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full;
+}

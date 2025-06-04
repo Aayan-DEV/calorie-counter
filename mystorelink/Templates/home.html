@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MyStoreLink - Your SaaS Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+        <h1 class="text-5xl font-bold mb-6">Welcome to MyStoreLink</h1>
+        <p class="text-xl mb-8 max-w-2xl mx-auto">
+            Your all-in-one platform for powerful SaaS applications. 
+            Manage your business, track your health, and boost your productivity.
+        </p>
+        <a href="#apps" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-200">
+            Explore Our Apps
+        </a>
+    </div>
+</section>
+
+<!-- Apps Section -->
+<section id="apps" class="py-16">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Our SaaS Applications</h2>
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for app in apps %}
+            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition duration-300">
+                <div class="text-4xl mb-4">{{ app.icon }}</div>
+                <h3 class="text-xl font-bold mb-3 text-gray-800">{{ app.name }}</h3>
+                <p class="text-gray-600 mb-4">{{ app.description }}</p>
+                <a href="{{ app.url }}" class="inline-block {{ app.color }} text-white px-6 py-2 rounded-lg hover:opacity-90 transition duration-200">
+                    Launch App
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="bg-gray-100 py-16">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Why Choose MyStoreLink?</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-rocket text-blue-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Fast & Reliable</h3>
+                <p class="text-gray-600">Lightning-fast performance with 99.9% uptime guarantee.</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-shield-alt text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Secure</h3>
+                <p class="text-gray-600">Enterprise-grade security to protect your data.</p>
+            </div>
+            <div class="text-center">
+                <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-users text-purple-600 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">User-Friendly</h3>
+                <p class="text-gray-600">Intuitive interfaces designed for productivity.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

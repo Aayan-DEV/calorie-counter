@@ -1,0 +1,7 @@
+Make a Venv : python -m venv .venv
+Activate it : .venv\Scripts\activate
+Download Django : pip install django
+(Optional) : Upgrade pip : python.exe -m pip install --upgrade pip
+Start new project : django-admin startproject name
+Create a new Templates folder in main "name". 
+Add this line to Templates in Settings.py : 'DIRS': [BASE_DIR / 'templates'],

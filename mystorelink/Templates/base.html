@@ -1,0 +1,87 @@
+{% load socialaccount %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MyStoreLink - SaaS Platform{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <a href="{% url 'home' %}" class="text-2xl font-bold text-blue-600">
+                        MyStoreLink
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="{% url 'home' %}" class="text-gray-700 hover:text-blue-600 transition duration-200">
+                        Home
+                    </a>
+                    <!-- Replace the button section with: -->
+                    {% if user.is_authenticated %}
+                        <div class="flex items-center space-x-4">
+                            <span class="text-gray-700">Hello, {{ user.first_name|default:user.username }}!</span>
+                            <a href="{% url 'account_logout' %}" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200">
+                                Logout
+                            </a>
+                        </div>
+                    {% else %}
+                        <a href="{% provider_login_url 'google' %}" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-200 flex items-center space-x-2">
+                            <i class="fab fa-google"></i>
+                            <span>Sign up with Google</span>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1">
+        {% if messages %}
+            <div class="max-w-7xl mx-auto px-4 py-4">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>&copy; 2024 MyStoreLink. All rights reserved.</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}
+    <script>
+    function directGoogleLogin() {
+        // Construct direct Google OAuth URL
+        const clientId = '{{ GOOGLE_OAUTH2_CLIENT_ID }}';
+        const redirectUri = encodeURIComponent('http://127.0.0.1:8000/accounts/google/login/callback/');
+        const scope = encodeURIComponent('profile email');
+        const responseType = 'code';
+        const state = Math.random().toString(36).substring(2, 15);
+        
+        const googleAuthUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=${responseType}&state=${state}`;
+        
+        window.location.href = googleAuthUrl;
+    }
+    </script>
+    {% endblock %}
+</body>
+</html>
