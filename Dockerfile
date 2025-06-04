@@ -24,11 +24,22 @@ COPY . /app/
 # Change to the Django project directory
 WORKDIR /app/mystorelink
 
+# Set Django settings module
+ENV DJANGO_SETTINGS_MODULE=mystorelink.settings
+
+# Set temporary environment variables for collectstatic
+ENV DJANGO_SECRET_KEY=temp-secret-key-for-build
+ENV DEBUG=False
+ENV DATABASE_URL=sqlite:///temp.db
+
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
 # Create media directory
 RUN mkdir -p /app/mystorelink/media
 
 # Expose port
 EXPOSE 8000
 
-# Run collectstatic and then the application
-CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:8000 mystorelink.wsgi:application"]
+# Run the application
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "mystorelink.wsgi:application"]
