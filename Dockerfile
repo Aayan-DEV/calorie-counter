@@ -1,4 +1,3 @@
-# Use Python 3.11 slim image
 FROM python:3.11-slim
 
 # Set environment variables
@@ -22,11 +21,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project
 COPY . /app/
 
+# Change to the Django project directory
+WORKDIR /app/mystorelink
+
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
 # Create media directory
-RUN mkdir -p /app/media
+RUN mkdir -p /app/mystorelink/media
 
 # Expose port
 EXPOSE 8000
