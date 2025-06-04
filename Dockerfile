@@ -24,14 +24,11 @@ COPY . /app/
 # Change to the Django project directory
 WORKDIR /app/mystorelink
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
-
 # Create media directory
 RUN mkdir -p /app/mystorelink/media
 
 # Expose port
 EXPOSE 8000
 
-# Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "mystorelink.wsgi:application"]
+# Run collectstatic and then the application
+CMD ["sh", "-c", "python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:8000 mystorelink.wsgi:application"]
