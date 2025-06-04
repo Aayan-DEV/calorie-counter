@@ -18,7 +18,18 @@ ALLOWED_HOSTS = [
     ".ngrok-free.app", 
     ".mystorel.ink",
     "localhost",
-    "127.0.0.1"
+    "127.0.0.1",
+    "192.168.0.16"
+]
+
+# Add CSRF trusted origins for production
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.railway.app",
+    "https://*.mystorel.ink",
+    "https://mystorel.ink",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://192.168.0.16:8000"
 ]
 
 # Database configuration for Railway
