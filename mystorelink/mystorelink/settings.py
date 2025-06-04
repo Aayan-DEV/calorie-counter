@@ -1,7 +1,7 @@
 from pathlib import Path
 from decouple import config
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,7 +39,11 @@ SUPABASE_DATABASE_URL = os.environ.get('SUPABASE_DATABASE_URL')
 
 if SUPABASE_DATABASE_URL:
     DATABASES = {
-        'default': dj_database_url.parse(SUPABASE_DATABASE_URL)
+        'default': dj_database_url.parse(SUPABASE_DATABASE_URL, conn_max_age=600)
+    }
+    # Force IPv4 connection
+    DATABASES['default']['OPTIONS'] = {
+        'options': '-c default_transaction_isolation=serializable'
     }
 else:
     # Fallback to SQLite if Supabase URL is not provided
