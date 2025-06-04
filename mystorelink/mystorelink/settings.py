@@ -22,7 +22,7 @@ ALLOWED_HOSTS = [
 ]
 
 # Database configuration for Railway
-if 'DATABASE_URL' in os.environ:
+if 'DATABASE_URL' in os.environ and os.environ.get('DATABASE_URL'):
     DATABASES = {
         'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
     }
