@@ -37,22 +37,13 @@ CSRF_TRUSTED_ORIGINS = [
 # Database configuration using Supabase PostgreSQL
 SUPABASE_DATABASE_URL = os.environ.get('SUPABASE_DATABASE_URL')
 
-if SUPABASE_DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.parse(SUPABASE_DATABASE_URL, conn_max_age=600)
-    }
-    # Force IPv4 connection
-    DATABASES['default']['OPTIONS'] = {
-        'options': '-c default_transaction_isolation=serializable'
-    }
-else:
-    # Fallback to SQLite if Supabase URL is not provided
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+DATABASES = {
+    'default': dj_database_url.parse(SUPABASE_DATABASE_URL, conn_max_age=600)
+}
+# Force IPv4 connection
+DATABASES['default']['OPTIONS'] = {
+    'options': '-c default_transaction_isolation=serializable'
+}
 
 # Static files configuration for production
 STATIC_URL = '/static/'
