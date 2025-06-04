@@ -34,16 +34,16 @@ CSRF_TRUSTED_ORIGINS = [
     "http://192.168.0.16:8000"
 ]
 
-# Database configuration using Supabase PostgreSQL
+# Database configuration using Supabase PostgreSQL only
 SUPABASE_DATABASE_URL = os.environ.get('SUPABASE_DATABASE_URL')
 
-DATABASES = {
-    'default': dj_database_url.parse(SUPABASE_DATABASE_URL, conn_max_age=600)
-}
-# Force IPv4 connection
-DATABASES['default']['OPTIONS'] = {
-    'options': '-c default_transaction_isolation=serializable'
-}
+if SUPABASE_DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(SUPABASE_DATABASE_URL)
+    }
+else:
+    # This will cause an error if SUPABASE_DATABASE_URL is not set
+    raise ValueError("SUPABASE_DATABASE_URL environment variable is required")
 
 # Static files configuration for production
 STATIC_URL = '/static/'
