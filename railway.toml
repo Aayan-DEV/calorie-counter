@@ -1,9 +1,12 @@
 [build]
-dockerfilePath = "Dockerfile"
+builder = "dockerfile"
 
 [deploy]
-startCommand = "python manage.py migrate && python manage.py create_superuser && python manage.py collectstatic --noinput && gunicorn mystorelink.wsgi:application --bind 0.0.0.0:$PORT"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
 
-[env]
-DJANGO_SETTINGS_MODULE = "mystorelink.settings"
-PYTHONPATH = "/code"
+[environments.production]
+variables = {
+  DJANGO_SETTINGS_MODULE = "mystorelink.settings",
+  PYTHONPATH = "/code"
+}
