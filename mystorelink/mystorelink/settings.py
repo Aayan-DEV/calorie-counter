@@ -1,5 +1,7 @@
 from pathlib import Path
 from decouple import config
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,13 +35,14 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Database configuration using Supabase PostgreSQL
-if 'SUPABASE_DATABASE_URL' in os.environ and os.environ.get('SUPABASE_DATABASE_URL'):
-    # Use Supabase PostgreSQL for both local and production
+SUPABASE_DATABASE_URL = os.environ.get('SUPABASE_DATABASE_URL')
+
+if SUPABASE_DATABASE_URL:
     DATABASES = {
-        'default': dj_database_url.parse(os.environ.get('SUPABASE_DATABASE_URL'))
+        'default': dj_database_url.parse(SUPABASE_DATABASE_URL)
     }
 else:
-    # Fallback to SQLite for development if Supabase URL not provided
+    # Fallback to SQLite if Supabase URL is not provided
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
