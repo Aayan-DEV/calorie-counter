@@ -36,18 +36,18 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Database configuration using Supabase PostgreSQL
 CONN_MAX_AGE = config('CONN_MAX_AGE', default=300, cast=int)
-SUPABASE_URL = config('SUPABASE_URL', default=None)
+DATABASE_URL = config('DATABASE_URL', default=None)
 
-if SUPABASE_URL is not None:
+if DATABASE_URL is not None:
     DATABASES = {
         "default": dj_database_url.config(
-            default=SUPABASE_URL,
+            default=DATABASE_URL,
             conn_health_checks=True,
             conn_max_age=CONN_MAX_AGE,
         )
     }
 else:
-    raise ValueError("SUPABASE_URL environment variable is required")
+    raise ValueError("DATABASE_URL environment variable is required")
 
 # Static files configuration for production
 STATIC_URL = '/static/'
