@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TrackGrams - Nutrition Camera</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
+    {% csrf_token %}
+   <style>
         body {
             font-family: 'Space Grotesk', sans-serif;
             background: linear-gradient(-45deg, #0a1214, #1a2e32, #0f1b1e);
@@ -86,6 +87,7 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
             color: white;
             backdrop-filter: blur(10px);
+            font-size: 16px; /* Prevents zoom on iOS */
         }
         
         .input-glass::placeholder {
@@ -93,25 +95,6 @@
         }
         
         .input-glass:focus {
-            outline: none;
-            border-color: rgba(255, 255, 255, 0.3);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-        }
-        
-        .select-glass {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white;
-            backdrop-filter: blur(10px);
-        }
-        
-        .select-glass option {
-            background: rgba(26, 46, 50, 0.95);
-            color: white;
-            padding: 8px;
-        }
-        
-        .select-glass:focus {
             outline: none;
             border-color: rgba(255, 255, 255, 0.3);
             box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
@@ -198,86 +181,48 @@
             transform: scale(1.1);
         }
         
-        #camera, #previewImage {
-            border-radius: 16px;
-            object-fit: cover;
+        .hidden {
+            display: none !important;
         }
         
-        /* Enhanced Mobile Responsiveness */
-        @media (max-width: 768px) {
-            body {
-                padding: 0.5rem;
-            }
-            
-            .glass-card {
-                margin: 0.25rem;
-                border-radius: 20px;
-                padding: 1rem !important;
-            }
-            
-            .btn-back {
-                padding: 0.75rem;
-                font-size: 0.875rem;
-            }
-            
-            .nutrition-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 0.75rem;
-            }
-            
-            .nutrition-card {
-                padding: 0.75rem;
-            }
-            
-            .input-glass, .select-glass {
-                padding: 0.875rem;
-                font-size: 1rem;
-            }
-            
-            .btn-primary, .btn-secondary {
-                padding: 0.875rem 1rem;
-                font-size: 1rem;
-                min-height: 48px;
-            }
+        /* File input styling */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
         }
         
-        @media (max-width: 480px) {
-            .nutrition-grid {
-                grid-template-columns: 1fr;
-                gap: 0.5rem;
-            }
-            
-            .glass-card {
-                margin: 0.125rem;
-                padding: 0.75rem !important;
-            }
-            
-            .btn-primary, .btn-secondary {
-                padding: 1rem;
-                font-size: 1rem;
-                min-height: 52px;
-            }
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
         }
         
-        @media (max-width: 360px) {
-            .glass-card {
-                border-radius: 16px;
+        .camera-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        /* iOS Safari specific fixes */
+        @supports (-webkit-touch-callout: none) {
+            .input-glass {
+                font-size: 16px !important;
+                transform: translateZ(0);
             }
         }
     </style>
 </head>
-<body class="min-h-screen">
-    <!-- Back Button -->
-    <div class="fixed top-4 right-4 z-50">
-        <a href="/" class="btn-back inline-flex items-center gap-2 py-3 px-4 rounded-xl text-sm font-medium">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
-            <span class="hidden sm:inline">Back</span>
-        </a>
-    </div>
-    
-    <div class="w-full max-w-md mx-auto pt-20 sm:pt-8 px-2">
+<body class="min-h-screen p-4">
+    <div class="max-w-md mx-auto">
+        <!-- Back Button -->
+        <div class="mb-4">
+            <a href="{% url 'home' %}" class="btn-back inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium">
+                ← Back to Home
+            </a>
+        </div>
+        
+        <!-- Main Card -->
         <div class="glass-card p-4 sm:p-6 fade-in">
             <!-- Header -->
             <div class="text-center mb-6 sm:mb-8">
@@ -285,20 +230,26 @@
                 <p class="text-white/80 text-sm">Snap, Analyze, Track Your Nutrition</p>
             </div>
             
-            <!-- Camera Section -->
+            <!-- Camera/Upload Section -->
             <div id="cameraSection" class="space-y-4">
-                <div class="relative">
-                    <video id="camera" autoplay playsinline class="w-full h-48 sm:h-64 bg-white/10 rounded-2xl"></video>
-                    <canvas id="canvas" class="hidden"></canvas>
+                <div class="camera-options">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="cameraInput" accept="image/*" capture="environment">
+                        <button class="btn-primary w-full py-4 px-4 rounded-xl font-medium text-sm sm:text-base" onclick="document.getElementById('cameraInput').click()">
+                            📸 Take Photo
+                        </button>
+                    </div>
+                    
+                    <div class="file-input-wrapper">
+                        <input type="file" id="uploadInput" accept="image/*">
+                        <button class="btn-secondary w-full py-4 px-4 rounded-xl font-medium text-sm sm:text-base" onclick="document.getElementById('uploadInput').click()">
+                            📁 Upload Image
+                        </button>
+                    </div>
                 </div>
                 
-                <div class="flex gap-3">
-                    <button id="captureBtn" class="btn-primary flex-1 py-3 px-4 rounded-xl font-medium text-sm sm:text-base">
-                        📸 Capture
-                    </button>
-                    <button id="switchCamera" class="btn-secondary py-3 px-4 rounded-xl">
-                        🔄
-                    </button>
+                <div class="text-center text-white/60 text-xs">
+                    Use your phone's native camera with pinch-to-zoom and tap-to-focus
                 </div>
             </div>
             
@@ -318,7 +269,7 @@
                     </button>
                     
                     <button id="retakeBtn" class="btn-secondary w-full py-2 px-4 rounded-xl text-sm">
-                        📸 Retake Photo
+                        📸 Take Another Photo
                     </button>
                 </div>
             </div>
@@ -358,8 +309,6 @@
                     <input type="text" id="foodNameInput" 
                            class="input-glass w-full py-3 px-3 rounded-lg text-sm" 
                            placeholder="Food name (e.g., Apple, Banana)">
-                    <div class="flex gap-2">
-                    </div>
                     <button id="addToLogBtn" class="btn-primary w-full py-3 px-4 rounded-lg font-medium text-sm">
                         ➕ Add to Food Log
                     </button>
@@ -400,8 +349,6 @@
 
     <script>
         let currentPhotoBlob = null;
-        let stream = null;
-        let currentCamera = 'environment';
         let foodLog = JSON.parse(localStorage.getItem('foodLog') || '[]');
         let currentNutritionData = null;
         
@@ -438,56 +385,20 @@
             document.getElementById(sectionId).classList.remove('hidden');
         }
         
-        async function initCamera() {
-            try {
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                }
-                
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        facingMode: currentCamera,
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    }
-                });
-                
-                const video = document.getElementById('camera');
-                video.srcObject = stream;
-                
-                showMessage('Camera ready! 📸', 'success');
-                
-            } catch (error) {
-                console.error('Camera error:', error);
-                showMessage('Camera access denied. Please allow camera permissions and refresh the page.');
-            }
-        }
-        
-        function capturePhoto() {
-            const video = document.getElementById('camera');
-            const canvas = document.getElementById('canvas');
-            const context = canvas.getContext('2d');
+        function handleImageSelection(file) {
+            if (!file) return;
             
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            // Create blob from file
+            currentPhotoBlob = file;
             
-            context.drawImage(video, 0, 0);
-            
-            canvas.toBlob((blob) => {
-                currentPhotoBlob = blob;
-                
-                const imageUrl = URL.createObjectURL(blob);
-                document.getElementById('previewImage').src = imageUrl;
-                
+            // Create preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImage').src = e.target.result;
                 showSection('photoPreview');
-                showMessage('Photo captured! Enter the weight and analyze.', 'success');
-                
-            }, 'image/jpeg', 0.8);
-        }
-        
-        function switchCamera() {
-            currentCamera = currentCamera === 'user' ? 'environment' : 'user';
-            initCamera();
+                showMessage('Photo ready! Enter the weight and analyze.', 'success');
+            };
+            reader.readAsDataURL(file);
         }
         
         async function analyzeNutrition() {
@@ -549,46 +460,45 @@
             document.getElementById('analysisMethod').textContent = data.analysis_method || 'AI Vision Analysis';
             document.getElementById('portionSize').textContent = grams;
             
-            // Pre-fill food name if available
-            const foodName = data.food_name || data.nutrition_analysis.food_name || '';
-            document.getElementById('foodNameInput').value = foodName;
-            
             showSection('nutritionAnalysis');
         }
         
         async function addToFoodLog() {
+            if (!currentNutritionData) {
+                showMessage('No nutrition data to add. Please analyze a photo first.');
+                return;
+            }
+            
             const foodName = document.getElementById('foodNameInput').value.trim();
+            const gramsInput = document.getElementById('gramsInput');
             
             if (!foodName) {
                 showMessage('Please enter a food name.');
                 return;
             }
             
-            if (!currentNutritionData) {
-                showMessage('No nutrition data available. Please analyze food first.');
+            if (!gramsInput.value) {
+                showMessage('Please enter the weight in grams.');
                 return;
             }
             
-            // Use the grams from the analysis (portion size) directly
-            const gramsFromAnalysis = parseFloat(document.getElementById('gramsInput').value) || 100;
+            const grams = parseFloat(gramsInput.value);
             const nutrition = currentNutritionData.nutrition_analysis.nutrition_for_requested_grams;
-            const totalCalories = Math.round(nutrition.calories || 0);
             
             const foodEntry = {
-                food_name: foodName,
-                quantity: gramsFromAnalysis,  // Use the grams from photo analysis
-                unit: 'gram',  // Always use grams since that's what we analyzed
-                calories_per_unit: Math.round(totalCalories / gramsFromAnalysis),
-                total_calories: totalCalories,
-                nutrition: {
-                    protein: nutrition.protein_grams || 0,
-                    carbs: nutrition.carbs_grams || 0,
-                    sugar: nutrition.sugar_grams || 0
-                }
+                food_name: foodName,  // Changed from 'name' to 'food_name'
+                quantity: grams,
+                unit: 'gram',
+                calories_per_unit: Math.round(nutrition.calories / grams || 0),  // Added
+                total_calories: Math.round(nutrition.calories || 0),  // Changed from 'calories'
+                protein: (nutrition.protein_grams || 0).toFixed(1),
+                carbs: (nutrition.carbs_grams || 0).toFixed(1),
+                sugar: (nutrition.sugar_grams || 0).toFixed(1),
+                timestamp: new Date().toISOString(),
+                date: new Date().toDateString()
             };
             
             try {
-                // Save to database first
                 const response = await fetch('/trackgrams/add-food-entry/', {
                     method: 'POST',
                     headers: {
@@ -602,67 +512,66 @@
                     const result = await response.json();
                     // Use the database ID returned from the server
                     foodEntry.id = result.entry_id;
-                    foodEntry.date_added = new Date().toISOString();
-                    
-                    // Save to local storage with the correct database ID
+                    // Keep the display fields for the UI
+                    foodEntry.name = foodEntry.food_name;
+                    foodEntry.calories = foodEntry.total_calories;
                     foodLog.push(foodEntry);
                     localStorage.setItem('foodLog', JSON.stringify(foodLog));
-                    
-                    showMessage('Added to food log! 🎉', 'success');
                     updateFoodLogDisplay();
+                    showMessage(`${foodName} added to your food log! 🎉`, 'success');
                 } else {
-                    throw new Error('Failed to save to database');
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to save to database');
                 }
+                
             } catch (error) {
-                console.error('Database save failed:', error);
-                showMessage('Failed to save to database. Please try again.', 'error');
-                return;
+                console.error('Save error:', error);
+                showMessage(`Failed to save to database: ${error.message}`);
+                // Don't add to localStorage if database save fails
             }
-            
-            // Clear form
-            document.getElementById('foodNameInput').value = '';
         }
         
         function updateFoodLogDisplay() {
             const container = document.getElementById('foodLogContainer');
-            const totalCaloriesSpan = document.getElementById('totalCalories');
-            
-            // Filter today's entries
             const today = new Date().toDateString();
-            const todayEntries = foodLog.filter(entry => 
-                new Date(entry.date_added).toDateString() === today
-            );
+            const todayEntries = foodLog.filter(entry => entry.date === today);
             
             if (todayEntries.length === 0) {
-                container.innerHTML = `
-                    <div class="text-white/60 text-center py-4 text-sm" id="emptyLogMessage">
-                        No food entries yet. Start by analyzing some food!
+                container.innerHTML = '<div class="text-white/60 text-center py-4 text-sm">No food entries yet. Start by analyzing some food!</div>';
+            } else {
+                const entriesHtml = todayEntries.map(entry => `
+                    <div class="food-entry-card p-3 rounded-xl flex items-center justify-between">
+                        <div class="flex-1">
+                            <div class="text-white font-medium text-sm">${entry.name}</div>
+                            <div class="text-white/70 text-xs">${entry.quantity}${entry.unit} • ${entry.calories} cal</div>
+                            <div class="text-white/60 text-xs">P: ${entry.protein}g • C: ${entry.carbs}g • S: ${entry.sugar}g</div>
+                        </div>
+                        <button onclick="removeFoodEntry(${entry.id})" class="remove-btn ml-3">
+                            ✕
+                        </button>
                     </div>
-                `;
-                totalCaloriesSpan.textContent = '0';
+                `).join('');
+                
+                container.innerHTML = entriesHtml;
+            }
+            
+            const totalCalories = todayEntries.reduce((sum, entry) => sum + entry.calories, 0);
+            document.getElementById('totalCalories').textContent = totalCalories;
+        }
+        
+        async function removeFoodEntry(id) {
+            // Check if this is a timestamp ID (old local entry) vs database ID
+            if (typeof id === 'number' && id > 1000000000000) {
+                // This is a timestamp ID - remove locally only
+                foodLog = foodLog.filter(entry => entry.id !== id);
+                localStorage.setItem('foodLog', JSON.stringify(foodLog));
+                updateFoodLogDisplay();
+                showMessage('Local entry removed! 🗑️', 'success');
                 return;
             }
             
-            const totalCalories = todayEntries.reduce((sum, entry) => sum + entry.total_calories, 0);
-            totalCaloriesSpan.textContent = totalCalories;
-            
-            container.innerHTML = todayEntries.map(entry => `
-                <div class="food-entry-card p-3 rounded-lg flex justify-between items-center">
-                    <div>
-                        <div class="text-white font-medium text-sm">${entry.food_name}</div>
-                        <div class="text-white/60 text-xs">${entry.quantity} ${entry.unit} • ${entry.total_calories} cal</div>
-                    </div>
-                    <button class="remove-btn" onclick="removeFoodEntry(${entry.id})">
-                        ✕
-                    </button>
-                </div>
-            `).join('');
-        }
-        
-        
-        async function removeFoodEntry(id) {
+            // This is a database ID - try to delete from server
             try {
-                // Delete from database first
                 const response = await fetch(`/trackgrams/delete-food-entry/${id}/`, {
                     method: 'DELETE',
                     headers: {
@@ -671,21 +580,21 @@
                 });
                 
                 if (response.ok) {
-                    // Remove from local storage immediately after successful database deletion
                     foodLog = foodLog.filter(entry => entry.id !== id);
                     localStorage.setItem('foodLog', JSON.stringify(foodLog));
-                    
-                    // Update UI immediately
                     updateFoodLogDisplay();
-                    
                     showMessage('Food entry removed! 🗑️', 'success');
                 } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to delete from database');
+                    throw new Error('Failed to delete from database');
                 }
+                
             } catch (error) {
-                console.error('Database deletion failed:', error);
-                showMessage(`Failed to delete: ${error.message}`, 'error');
+                console.error('Delete error:', error);
+                // If database delete fails, still remove locally
+                foodLog = foodLog.filter(entry => entry.id !== id);
+                localStorage.setItem('foodLog', JSON.stringify(foodLog));
+                updateFoodLogDisplay();
+                showMessage('Removed locally (database error)', 'success');
             }
         }
         
@@ -695,41 +604,50 @@
             document.getElementById('gramsInput').value = '';
             document.getElementById('foodNameInput').value = '';
             showSection('cameraSection');
-            document.getElementById('messages').innerHTML = '';
         }
         
-        function retakePhoto() {
-            showSection('cameraSection');
+        // Fix iOS zoom issue
+        function handleInputFocus(event) {
+            if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                setTimeout(() => {
+                    window.scrollTo(0, 0);
+                    document.body.scrollTop = 0;
+                }, 0);
+            }
+        }
+        
+        function handleInputBlur(event) {
+            if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+                setTimeout(() => {
+                    const viewport = document.querySelector('meta[name=viewport]');
+                    viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+                    window.scrollTo(0, 0);
+                }, 100);
+            }
         }
         
         // Event Listeners
-        document.getElementById('captureBtn').addEventListener('click', capturePhoto);
+        document.getElementById('cameraInput').addEventListener('change', function(e) {
+            handleImageSelection(e.target.files[0]);
+        });
+        
+        document.getElementById('uploadInput').addEventListener('change', function(e) {
+            handleImageSelection(e.target.files[0]);
+        });
+        
+        document.getElementById('retakeBtn').addEventListener('click', () => showSection('cameraSection'));
         document.getElementById('analyzeBtn').addEventListener('click', analyzeNutrition);
-        document.getElementById('retakeBtn').addEventListener('click', retakePhoto);
-        document.getElementById('switchCamera').addEventListener('click', switchCamera);
-        document.getElementById('newAnalysisBtn').addEventListener('click', startNewAnalysis);
         document.getElementById('addToLogBtn').addEventListener('click', addToFoodLog);
+        document.getElementById('newAnalysisBtn').addEventListener('click', startNewAnalysis);
         
-        document.getElementById('gramsInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                analyzeNutrition();
-            }
-        });
+        // Add iOS zoom fix event listeners
+        document.getElementById('gramsInput').addEventListener('focus', handleInputFocus);
+        document.getElementById('gramsInput').addEventListener('blur', handleInputBlur);
+        document.getElementById('foodNameInput').addEventListener('focus', handleInputFocus);
+        document.getElementById('foodNameInput').addEventListener('blur', handleInputBlur);
         
-        document.addEventListener('DOMContentLoaded', () => {
-            initCamera();
-            showSection('cameraSection');
-            updateFoodLogDisplay();
-        });
-        
-        window.addEventListener('beforeunload', () => {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-        });
-        
-        // Make removeFoodEntry globally accessible
-        window.removeFoodEntry = removeFoodEntry;
+        // Initialize
+        updateFoodLogDisplay();
     </script>
 </body>
 </html>
