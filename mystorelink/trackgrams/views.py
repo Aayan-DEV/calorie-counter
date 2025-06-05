@@ -5,7 +5,7 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
-from .models import Photo
+from .models import Photo, FoodEntry
 from django.contrib.auth.decorators import login_required
 
 @login_required
@@ -228,3 +228,98 @@ def camera_capture(request):
     return render(request, 'trackgrams/track.html', {
         'recent_photos': recent_photos
     })
+
+@csrf_exempt
+@login_required
+def add_food_entry(request):
+    """Add a food entry to the database"""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            
+            food_entry = FoodEntry.objects.create(
+                user=request.user,
+                food_name=data.get('food_name'),
+                quantity=data.get('quantity'),
+                unit=data.get('unit'),
+                calories_per_unit=data.get('calories_per_unit'),
+                total_calories=data.get('total_calories')
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Food entry added successfully',
+                'entry_id': food_entry.id
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method'
+    }, status=405)
+
+@login_required
+def get_food_entries(request):
+    """Get user's food entries for today"""
+    from django.utils import timezone
+    from datetime import datetime
+    
+    today = timezone.now().date()
+    entries = FoodEntry.objects.filter(
+        user=request.user,
+        date_added__date=today
+    ).order_by('-date_added')
+    
+    entries_data = [{
+        'id': entry.id,
+        'food_name': entry.food_name,
+        'quantity': float(entry.quantity),
+        'unit': entry.unit,
+        'calories_per_unit': entry.calories_per_unit,
+        'total_calories': entry.total_calories,
+        'date_added': entry.date_added.isoformat()
+    } for entry in entries]
+    
+    total_calories = sum(entry.total_calories for entry in entries)
+    
+    return JsonResponse({
+        'success': True,
+        'entries': entries_data,
+        'total_calories': total_calories
+    })
+
+
+@csrf_exempt
+@login_required
+def delete_food_entry(request, entry_id):
+    """Delete a food entry from the database"""
+    if request.method == 'DELETE':
+        try:
+            food_entry = FoodEntry.objects.get(id=entry_id, user=request.user)
+            food_entry.delete()
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Food entry deleted successfully'
+            })
+            
+        except FoodEntry.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'message': 'Food entry not found'
+            }, status=404)
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method'
+    }, status=405)

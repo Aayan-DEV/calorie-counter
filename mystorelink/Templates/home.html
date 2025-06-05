@@ -1,69 +1,79 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load socialaccount %}
 
-{% block title %}MyStoreLink - Your SaaS Platform{% endblock %}
+{% block title %}Welcome{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-        <h1 class="text-5xl font-bold mb-6">Welcome to MyStoreLink</h1>
-        <p class="text-xl mb-8 max-w-2xl mx-auto">
-            Your all-in-one platform for powerful SaaS applications. 
-            Manage your business, track your health, and boost your productivity.
-        </p>
-        <a href="#apps" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-200">
-            Explore Our Apps
-        </a>
-    </div>
-</section>
-
-<!-- Apps Section -->
-<section id="apps" class="py-16">
-    <div class="max-w-7xl mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Our SaaS Applications</h2>
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {% for app in apps %}
-            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition duration-300">
-                <div class="text-4xl mb-4">{{ app.icon }}</div>
-                <h3 class="text-xl font-bold mb-3 text-gray-800">{{ app.name }}</h3>
-                <p class="text-gray-600 mb-4">{{ app.description }}</p>
-                <a href="{{ app.url }}" class="inline-block {{ app.color }} text-white px-6 py-2 rounded-lg hover:opacity-90 transition duration-200">
-                    Launch App
-                </a>
-            </div>
-            {% endfor %}
+{% if user.is_authenticated %}
+    <!-- Logged in user view -->
+    <div class="fade-in text-center px-6 relative w-full">
+        <!-- Greeting -->
+        <div class="mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2">Hi! {{ user.first_name|default:user.username }}</h1>
+        </div>
+        
+        <!-- Calorie Tracker App Card -->
+        <div class="w-full max-w-sm mx-auto">
+            <a href="/trackgrams/" class="app-card block p-4 sm:p-6 rounded-2xl cursor-pointer group no-underline">
+                <!-- App Icon -->
+                <div class="app-icon mb-4">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 mx-auto bg-gradient-to-br from-green-400 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <svg class="w-7 h-7 sm:w-8 sm:h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- App Info -->
+                <div class="text-center">
+                    <h3 class="text-xl font-semibold text-white mb-2 group-hover:text-green-300 transition-colors duration-200">Calorie Tracker</h3>
+                    <p class="text-gray-300 text-sm leading-relaxed">Take a picture of nutrition labels, input grams, and get instant nutritional information</p>
+                </div>
+            </a>
         </div>
     </div>
-</section>
-
-<!-- Features Section -->
-<section class="bg-gray-100 py-16">
-    <div class="max-w-7xl mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Why Choose MyStoreLink?</h2>
-        <div class="grid md:grid-cols-3 gap-8">
-            <div class="text-center">
-                <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-rocket text-blue-600 text-2xl"></i>
+{% else %}
+    <!-- Not logged in view -->
+    <div class="fade-in text-center px-4 sm:px-6 w-full">
+        <!-- Google Sign Up Button with Info Icon -->
+        <div class="w-full max-w-xs mx-auto relative">
+            <a href="{% provider_login_url 'google' %}" class="glow-button w-full px-4 sm:px-6 py-3 rounded-xl flex items-center justify-center space-x-3 cursor-pointer group no-underline">
+                <!-- Google Icon -->
+                <div class="google-icon">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
                 </div>
-                <h3 class="text-xl font-bold mb-3">Fast & Reliable</h3>
-                <p class="text-gray-600">Lightning-fast performance with 99.9% uptime guarantee.</p>
+                
+                <!-- Button Text -->
+                <span class="text-gray-800 font-medium text-base tracking-wide">Continue with Google</span>
+            </a>
+            
+            <!-- Info Icon with Tooltip -->
+            <div class="absolute -right-8 top-1/2 transform -translate-y-1/2 tooltip-container sm:block hidden">
+                <div class="w-5 h-5 rounded-full bg-gray-400 hover:bg-gray-500 flex items-center justify-center cursor-help transition-colors duration-200">
+                    <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                
+                <!-- Tooltip -->
+                <div class="tooltip absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg opacity-0 pointer-events-none transition-opacity duration-200 whitespace-nowrap">
+                    This is needed to use all apps, and it's easy!
+                    <div class="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                </div>
             </div>
-            <div class="text-center">
-                <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-shield-alt text-green-600 text-2xl"></i>
+            
+            <!-- Mobile Tooltip (Always Visible) -->
+            <div class="sm:hidden block mt-3 text-center">
+                <div class="text-white text-xs bg-gray-800 bg-opacity-80 rounded-lg py-2 px-3 inline-block">
+                    This is needed to use all apps, and it's easy!
                 </div>
-                <h3 class="text-xl font-bold mb-3">Secure</h3>
-                <p class="text-gray-600">Enterprise-grade security to protect your data.</p>
-            </div>
-            <div class="text-center">
-                <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="fas fa-users text-purple-600 text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-3">User-Friendly</h3>
-                <p class="text-gray-600">Intuitive interfaces designed for productivity.</p>
             </div>
         </div>
     </div>
-</section>
+{% endif %}
 {% endblock %}

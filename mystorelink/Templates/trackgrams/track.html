@@ -4,374 +4,407 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrackGrams - Nutrition Camera</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(-45deg, #0a1214, #1a2e32, #0f1b1e);
+            background-size: 400% 400%;
+            animation: gradientShift 60s ease-in-out infinite;
             min-height: 100vh;
-            padding: 20px;
         }
-
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            33% { background-position: 100% 50%; }
+            66% { background-position: 50% 100%; }
         }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
         }
-
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 16px;
-        }
-
-        .content {
-            padding: 30px 20px;
-        }
-
-        /* Camera Styles */
-        .camera-container {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        #camera {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 15px;
-            background: #f0f0f0;
-        }
-
-        .camera-controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .capture-btn {
-            flex: 1;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .capture-btn:hover {
+        
+        .glass-card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
         }
-
-        .switch-btn {
-            background: #6c757d;
+        
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.08));
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            border: none;
-            padding: 15px 20px;
-            border-radius: 12px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
-
-        .switch-btn:hover {
-            background: #5a6268;
+        
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
-
-        /* Photo Preview Styles */
-        .photo-preview {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        #previewImage {
-            width: 100%;
-            max-height: 300px;
-            object-fit: cover;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .preview-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .grams-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e9ecef;
-            border-radius: 12px;
-            font-size: 16px;
-            text-align: center;
-            transition: border-color 0.3s;
-        }
-
-        .grams-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .analyze-btn {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .analyze-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-        }
-
-        .analyze-btn:disabled {
-            background: #6c757d;
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
-
-        .retake-btn {
-            background: #dc3545;
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
             color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.3s;
         }
-
-        .retake-btn:hover {
-            background: #c82333;
+        
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
-
-        /* Loading Styles */
-        .loading {
-            text-align: center;
-            padding: 40px 20px;
-            display: none;
+        
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-2px);
         }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+        
+        .input-glass {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+        
+        .input-glass::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .input-glass:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+        
+        .select-glass {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+        
+        .select-glass option {
+            background: rgba(26, 46, 50, 0.95);
+            color: white;
+            padding: 8px;
+        }
+        
+        .select-glass:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .spinner-glass {
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top: 3px solid rgba(255, 255, 255, 0.8);
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto;
         }
-
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        .loading p {
-            color: #6c757d;
-            font-size: 16px;
+        
+        .success-message {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: rgb(34, 197, 94);
+            backdrop-filter: blur(10px);
         }
-
-        /* Nutrition Results Styles */
-        .nutrition-analysis {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 20px;
-            display: none;
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: rgb(239, 68, 68);
+            backdrop-filter: blur(10px);
         }
-
-        .nutrition-analysis h3 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 22px;
+        
+        .nutrition-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
         }
-
-        .nutrition-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .nutrient-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-
-        .nutrient-card:hover {
+        
+        .nutrition-card:hover {
+            background: rgba(255, 255, 255, 0.18);
             transform: translateY(-2px);
         }
-
-        .nutrient-value {
-            font-size: 28px;
+        
+        .food-entry-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            transition: all 0.3s ease;
+        }
+        
+        .food-entry-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .remove-btn {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: rgb(239, 68, 68);
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
             font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
         }
-
-        .nutrient-label {
-            font-size: 14px;
-            color: #6c757d;
-            font-weight: 500;
+        
+        .remove-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            transform: scale(1.1);
         }
-
-        .analysis-info {
-            background: #e8f5e8;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 14px;
-            color: #2c3e50;
+        
+        #camera, #previewImage {
+            border-radius: 16px;
+            object-fit: cover;
         }
-
-        .analysis-info strong {
-            color: #28a745;
-        }
-
-        /* Error Styles */
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            text-align: center;
-        }
-
-        /* Success Styles */
-        .success {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            text-align: center;
-        }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            .container {
-                margin: 10px;
-                border-radius: 15px;
+        
+        /* Enhanced Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
             }
             
-            .content {
-                padding: 20px 15px;
+            .glass-card {
+                margin: 0.25rem;
+                border-radius: 20px;
+                padding: 1rem !important;
+            }
+            
+            .btn-back {
+                padding: 0.75rem;
+                font-size: 0.875rem;
             }
             
             .nutrition-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+            }
+            
+            .nutrition-card {
+                padding: 0.75rem;
+            }
+            
+            .input-glass, .select-glass {
+                padding: 0.875rem;
+                font-size: 1rem;
+            }
+            
+            .btn-primary, .btn-secondary {
+                padding: 0.875rem 1rem;
+                font-size: 1rem;
+                min-height: 48px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nutrition-grid {
                 grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .glass-card {
+                margin: 0.125rem;
+                padding: 0.75rem !important;
+            }
+            
+            .btn-primary, .btn-secondary {
+                padding: 1rem;
+                font-size: 1rem;
+                min-height: 52px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .glass-card {
+                border-radius: 16px;
             }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🍎 TrackGrams</h1>
-            <p>Snap, Analyze, Track Your Nutrition</p>
-        </div>
-        
-        <div class="content">
+<body class="min-h-screen">
+    <!-- Back Button -->
+    <div class="fixed top-4 right-4 z-50">
+        <a href="/" class="btn-back inline-flex items-center gap-2 py-3 px-4 rounded-xl text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            <span class="hidden sm:inline">Back</span>
+        </a>
+    </div>
+    
+    <div class="w-full max-w-md mx-auto pt-20 sm:pt-8 px-2">
+        <div class="glass-card p-4 sm:p-6 fade-in">
+            <!-- Header -->
+            <div class="text-center mb-6 sm:mb-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-white mb-2">🍎 TrackGrams</h1>
+                <p class="text-white/80 text-sm">Snap, Analyze, Track Your Nutrition</p>
+            </div>
+            
             <!-- Camera Section -->
-            <div id="cameraSection" class="camera-container">
-                <video id="camera" autoplay playsinline></video>
-                <canvas id="canvas" style="display: none;"></canvas>
+            <div id="cameraSection" class="space-y-4">
+                <div class="relative">
+                    <video id="camera" autoplay playsinline class="w-full h-48 sm:h-64 bg-white/10 rounded-2xl"></video>
+                    <canvas id="canvas" class="hidden"></canvas>
+                </div>
                 
-                <div class="camera-controls">
-                    <button id="captureBtn" class="capture-btn">📸 Capture Photo</button>
-                    <button id="switchCamera" class="switch-btn">🔄</button>
+                <div class="flex gap-3">
+                    <button id="captureBtn" class="btn-primary flex-1 py-3 px-4 rounded-xl font-medium text-sm sm:text-base">
+                        📸 Capture
+                    </button>
+                    <button id="switchCamera" class="btn-secondary py-3 px-4 rounded-xl">
+                        🔄
+                    </button>
                 </div>
             </div>
             
             <!-- Photo Preview Section -->
-            <div id="photoPreview" class="photo-preview" style="display: none;">
-                <img id="previewImage" alt="Captured photo">
-                <div class="preview-controls">
-                    <input type="number" id="gramsInput" class="grams-input" 
-                           placeholder="Enter weight in grams" value="100" min="1" max="10000">
-                    <button id="analyzeBtn" class="analyze-btn">🔍 Analyze Nutrition</button>
-                    <button id="retakeBtn" class="retake-btn">📸 Retake Photo</button>
+            <div id="photoPreview" class="space-y-4 hidden">
+                <div class="relative">
+                    <img id="previewImage" alt="Captured photo" class="w-full h-48 sm:h-64 rounded-2xl object-cover">
+                </div>
+                
+                <div class="space-y-3">
+                    <input type="number" id="gramsInput" 
+                           class="input-glass w-full py-3 px-4 rounded-xl text-center text-sm sm:text-base" 
+                           placeholder="Enter weight in grams (e.g., 150)" min="1" max="10000">
+                    
+                    <button id="analyzeBtn" class="btn-primary w-full py-3 px-4 rounded-xl font-medium text-sm sm:text-base">
+                        🔍 Analyze Nutrition
+                    </button>
+                    
+                    <button id="retakeBtn" class="btn-secondary w-full py-2 px-4 rounded-xl text-sm">
+                        📸 Retake Photo
+                    </button>
                 </div>
             </div>
             
             <!-- Loading Section -->
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Analyzing your food...</p>
+            <div id="loading" class="text-center py-8 hidden">
+                <div class="spinner-glass mb-4"></div>
+                <p class="text-white/80 text-sm">Analyzing your food...</p>
             </div>
             
             <!-- Results Section -->
-            <div id="nutritionAnalysis" class="nutrition-analysis">
-                <h3>📊 Nutrition Analysis</h3>
-                <div class="nutrition-grid">
-                    <div class="nutrient-card">
-                        <div class="nutrient-value" id="calories">-</div>
-                        <div class="nutrient-label">Calories</div>
+            <div id="nutritionAnalysis" class="space-y-6 hidden">
+                <h3 class="text-lg sm:text-xl font-semibold text-white text-center mb-4">📊 Nutrition Analysis</h3>
+                
+                <div class="nutrition-grid grid grid-cols-2 gap-3">
+                    <div class="nutrition-card p-3 sm:p-4 rounded-xl text-center">
+                        <div class="text-xl sm:text-2xl font-bold text-white mb-1" id="calories">-</div>
+                        <div class="text-white/70 text-xs sm:text-sm">Calories</div>
                     </div>
-                    <div class="nutrient-card">
-                        <div class="nutrient-value" id="protein">-</div>
-                        <div class="nutrient-label">Protein (g)</div>
+                    <div class="nutrition-card p-3 sm:p-4 rounded-xl text-center">
+                        <div class="text-xl sm:text-2xl font-bold text-white mb-1" id="protein">-</div>
+                        <div class="text-white/70 text-xs sm:text-sm">Protein (g)</div>
                     </div>
-                    <div class="nutrient-card">
-                        <div class="nutrient-value" id="carbs">-</div>
-                        <div class="nutrient-label">Carbs (g)</div>
+                    <div class="nutrition-card p-3 sm:p-4 rounded-xl text-center">
+                        <div class="text-xl sm:text-2xl font-bold text-white mb-1" id="carbs">-</div>
+                        <div class="text-white/70 text-xs sm:text-sm">Carbs (g)</div>
                     </div>
-                    <div class="nutrient-card">
-                        <div class="nutrient-value" id="sugar">-</div>
-                        <div class="nutrient-label">Sugar (g)</div>
+                    <div class="nutrition-card p-3 sm:p-4 rounded-xl text-center">
+                        <div class="text-xl sm:text-2xl font-bold text-white mb-1" id="sugar">-</div>
+                        <div class="text-white/70 text-xs sm:text-sm">Sugar (g)</div>
                     </div>
                 </div>
-                <div class="analysis-info">
-                    <strong>Analysis Method:</strong> <span id="analysisMethod">-</span><br>
-                    <strong>Portion Size:</strong> <span id="portionSize">-</span>g
+                
+                <!-- Add to Food Log Section -->
+                <div class="glass-card p-4 rounded-xl space-y-3">
+                    <h4 class="text-white font-medium text-sm sm:text-base">Add to Food Log</h4>
+                    <input type="text" id="foodNameInput" 
+                           class="input-glass w-full py-3 px-3 rounded-lg text-sm" 
+                           placeholder="Food name (e.g., Apple, Banana)">
+                    <div class="flex gap-2">
+                    </div>
+                    <button id="addToLogBtn" class="btn-primary w-full py-3 px-4 rounded-lg font-medium text-sm">
+                        ➕ Add to Food Log
+                    </button>
                 </div>
-                <button id="newAnalysisBtn" class="analyze-btn" style="margin-top: 15px;">📸 Analyze Another Food</button>
+                
+                <div class="glass-card p-4 rounded-xl">
+                    <div class="text-white/90 text-xs sm:text-sm space-y-1">
+                        <div><strong class="text-white">Analysis Method:</strong> <span id="analysisMethod">-</span></div>
+                        <div><strong class="text-white">Portion Size:</strong> <span id="portionSize">-</span>g</div>
+                    </div>
+                </div>
+                
+                <button id="newAnalysisBtn" class="btn-primary w-full py-3 px-4 rounded-xl font-medium text-sm sm:text-base">
+                    📸 Analyze Another Food
+                </button>
             </div>
             
             <!-- Messages -->
-            <div id="messages"></div>
+            <div id="messages" class="mt-4"></div>
+        </div>
+        
+        <!-- Food Log Section -->
+        <div class="glass-card p-4 sm:p-6 mt-4 fade-in">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg sm:text-xl font-semibold text-white">📝 Today's Food Log</h2>
+                <div class="text-white/70 text-sm">
+                    <span id="totalCalories">0</span> cal added
+                </div>
+            </div>
+            
+            <div id="foodLogContainer" class="space-y-2">
+                <div class="text-white/60 text-center py-4 text-sm" id="emptyLogMessage">
+                    No food entries yet. Start by analyzing some food!
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         let currentPhotoBlob = null;
         let stream = null;
-        let currentCamera = 'environment'; // Start with back camera for food photos
+        let currentCamera = 'environment';
+        let foodLog = JSON.parse(localStorage.getItem('foodLog') || '[]');
+        let currentNutritionData = null;
         
-        // Utility Functions
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -389,32 +422,28 @@
         
         function showMessage(message, type = 'error') {
             const messagesDiv = document.getElementById('messages');
-            messagesDiv.innerHTML = `<div class="${type}">${message}</div>`;
+            const messageClass = type === 'success' ? 'success-message' : 'error-message';
+            messagesDiv.innerHTML = `<div class="${messageClass} p-3 rounded-xl text-center text-sm">${message}</div>`;
             setTimeout(() => {
                 messagesDiv.innerHTML = '';
             }, 5000);
         }
         
         function showSection(sectionId) {
-            // Hide all sections
-            document.getElementById('cameraSection').style.display = 'none';
-            document.getElementById('photoPreview').style.display = 'none';
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('nutritionAnalysis').style.display = 'none';
+            document.getElementById('cameraSection').classList.add('hidden');
+            document.getElementById('photoPreview').classList.add('hidden');
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('nutritionAnalysis').classList.add('hidden');
             
-            // Show requested section
-            document.getElementById(sectionId).style.display = 'block';
+            document.getElementById(sectionId).classList.remove('hidden');
         }
         
-        // Camera Functions
         async function initCamera() {
             try {
-                // Stop existing stream
                 if (stream) {
                     stream.getTracks().forEach(track => track.stop());
                 }
                 
-                // Request camera access
                 stream = await navigator.mediaDevices.getUserMedia({
                     video: { 
                         facingMode: currentCamera,
@@ -439,18 +468,14 @@
             const canvas = document.getElementById('canvas');
             const context = canvas.getContext('2d');
             
-            // Set canvas size to video size
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             
-            // Draw video frame to canvas
             context.drawImage(video, 0, 0);
             
-            // Convert to blob for API upload
             canvas.toBlob((blob) => {
                 currentPhotoBlob = blob;
                 
-                // Show preview
                 const imageUrl = URL.createObjectURL(blob);
                 document.getElementById('previewImage').src = imageUrl;
                 
@@ -465,7 +490,6 @@
             initCamera();
         }
         
-        // Analysis Functions
         async function analyzeNutrition() {
             if (!currentPhotoBlob) {
                 showMessage('No photo to analyze. Please capture a photo first.');
@@ -479,17 +503,14 @@
                 return;
             }
             
-            // Show loading
             showSection('loading');
             document.getElementById('analyzeBtn').disabled = true;
             
             try {
-                // Prepare form data
                 const formData = new FormData();
                 formData.append('image', currentPhotoBlob, 'photo.jpg');
                 formData.append('grams', grams);
                 
-                // Call your nutrition API directly
                 const response = await fetch('https://calorie-counter-api-production.up.railway.app/analyze-nutrition', {
                     method: 'POST',
                     headers: {
@@ -501,6 +522,7 @@
                 const result = await response.json();
                 
                 if (result.status === 'success') {
+                    currentNutritionData = result;
                     displayNutritionResults(result, grams);
                     showMessage('Analysis complete! 🎉', 'success');
                 } else {
@@ -519,23 +541,159 @@
         function displayNutritionResults(data, grams) {
             const nutrition = data.nutrition_analysis.nutrition_for_requested_grams;
             
-            // Update nutrition values
             document.getElementById('calories').textContent = Math.round(nutrition.calories || 0);
             document.getElementById('protein').textContent = (nutrition.protein_grams || 0).toFixed(1);
             document.getElementById('carbs').textContent = (nutrition.carbs_grams || 0).toFixed(1);
             document.getElementById('sugar').textContent = (nutrition.sugar_grams || 0).toFixed(1);
             
-            // Update analysis info
             document.getElementById('analysisMethod').textContent = data.analysis_method || 'AI Vision Analysis';
             document.getElementById('portionSize').textContent = grams;
             
-            // Show results
+            // Pre-fill food name if available
+            const foodName = data.food_name || data.nutrition_analysis.food_name || '';
+            document.getElementById('foodNameInput').value = foodName;
+            
             showSection('nutritionAnalysis');
+        }
+        
+        async function addToFoodLog() {
+            const foodName = document.getElementById('foodNameInput').value.trim();
+            
+            if (!foodName) {
+                showMessage('Please enter a food name.');
+                return;
+            }
+            
+            if (!currentNutritionData) {
+                showMessage('No nutrition data available. Please analyze food first.');
+                return;
+            }
+            
+            // Use the grams from the analysis (portion size) directly
+            const gramsFromAnalysis = parseFloat(document.getElementById('gramsInput').value) || 100;
+            const nutrition = currentNutritionData.nutrition_analysis.nutrition_for_requested_grams;
+            const totalCalories = Math.round(nutrition.calories || 0);
+            
+            const foodEntry = {
+                food_name: foodName,
+                quantity: gramsFromAnalysis,  // Use the grams from photo analysis
+                unit: 'gram',  // Always use grams since that's what we analyzed
+                calories_per_unit: Math.round(totalCalories / gramsFromAnalysis),
+                total_calories: totalCalories,
+                nutrition: {
+                    protein: nutrition.protein_grams || 0,
+                    carbs: nutrition.carbs_grams || 0,
+                    sugar: nutrition.sugar_grams || 0
+                }
+            };
+            
+            try {
+                // Save to database first
+                const response = await fetch('/trackgrams/add-food-entry/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(foodEntry)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    // Use the database ID returned from the server
+                    foodEntry.id = result.entry_id;
+                    foodEntry.date_added = new Date().toISOString();
+                    
+                    // Save to local storage with the correct database ID
+                    foodLog.push(foodEntry);
+                    localStorage.setItem('foodLog', JSON.stringify(foodLog));
+                    
+                    showMessage('Added to food log! 🎉', 'success');
+                    updateFoodLogDisplay();
+                } else {
+                    throw new Error('Failed to save to database');
+                }
+            } catch (error) {
+                console.error('Database save failed:', error);
+                showMessage('Failed to save to database. Please try again.', 'error');
+                return;
+            }
+            
+            // Clear form
+            document.getElementById('foodNameInput').value = '';
+        }
+        
+        function updateFoodLogDisplay() {
+            const container = document.getElementById('foodLogContainer');
+            const totalCaloriesSpan = document.getElementById('totalCalories');
+            
+            // Filter today's entries
+            const today = new Date().toDateString();
+            const todayEntries = foodLog.filter(entry => 
+                new Date(entry.date_added).toDateString() === today
+            );
+            
+            if (todayEntries.length === 0) {
+                container.innerHTML = `
+                    <div class="text-white/60 text-center py-4 text-sm" id="emptyLogMessage">
+                        No food entries yet. Start by analyzing some food!
+                    </div>
+                `;
+                totalCaloriesSpan.textContent = '0';
+                return;
+            }
+            
+            const totalCalories = todayEntries.reduce((sum, entry) => sum + entry.total_calories, 0);
+            totalCaloriesSpan.textContent = totalCalories;
+            
+            container.innerHTML = todayEntries.map(entry => `
+                <div class="food-entry-card p-3 rounded-lg flex justify-between items-center">
+                    <div>
+                        <div class="text-white font-medium text-sm">${entry.food_name}</div>
+                        <div class="text-white/60 text-xs">${entry.quantity} ${entry.unit} • ${entry.total_calories} cal</div>
+                    </div>
+                    <button class="remove-btn" onclick="removeFoodEntry(${entry.id})">
+                        ✕
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        
+        async function removeFoodEntry(id) {
+            try {
+                // Delete from database first
+                const response = await fetch(`/trackgrams/delete-food-entry/${id}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                
+                if (response.ok) {
+                    // Remove from local storage immediately after successful database deletion
+                    foodLog = foodLog.filter(entry => entry.id !== id);
+                    localStorage.setItem('foodLog', JSON.stringify(foodLog));
+                    
+                    // Update UI immediately
+                    updateFoodLogDisplay();
+                    
+                    showMessage('Food entry removed! 🗑️', 'success');
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to delete from database');
+                }
+            } catch (error) {
+                console.error('Database deletion failed:', error);
+                showMessage(`Failed to delete: ${error.message}`, 'error');
+            }
         }
         
         function startNewAnalysis() {
             currentPhotoBlob = null;
-            document.getElementById('gramsInput').value = '100';
+            currentNutritionData = null;
+            document.getElementById('gramsInput').value = '';
+            document.getElementById('foodNameInput').value = '';
             showSection('cameraSection');
             document.getElementById('messages').innerHTML = '';
         }
@@ -550,26 +708,28 @@
         document.getElementById('retakeBtn').addEventListener('click', retakePhoto);
         document.getElementById('switchCamera').addEventListener('click', switchCamera);
         document.getElementById('newAnalysisBtn').addEventListener('click', startNewAnalysis);
+        document.getElementById('addToLogBtn').addEventListener('click', addToFoodLog);
         
-        // Enter key support for grams input
         document.getElementById('gramsInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 analyzeNutrition();
             }
         });
         
-        // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
             initCamera();
             showSection('cameraSection');
+            updateFoodLogDisplay();
         });
         
-        // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
             }
         });
+        
+        // Make removeFoodEntry globally accessible
+        window.removeFoodEntry = removeFoodEntry;
     </script>
 </body>
 </html>

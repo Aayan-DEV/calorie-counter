@@ -4,43 +4,51 @@
 {% block title %}Track Grams - Calorie Tracker{% endblock %}
 
 {% block content %}
-<div class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-16">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-        <h1 class="text-4xl font-bold mb-4">🍎 Track Grams</h1>
-        <p class="text-xl mb-8">Your personal calorie and nutrition tracking companion</p>
-        <a href="{% url 'trackgrams:track' %}" class="bg-white text-green-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-200">
-            Start Tracking
-        </a>
-    </div>
-</div>
-
-<div class="max-w-7xl mx-auto px-4 py-16">
-    <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-white rounded-lg shadow-lg p-6">
-            <div class="text-3xl mb-4">📊</div>
-            <h3 class="text-xl font-bold mb-3">Track Calories</h3>
-            <p class="text-gray-600 mb-4">Monitor your daily caloric intake with our easy-to-use food database.</p>
-            <a href="{% url 'trackgrams:track' %}" class="text-green-600 font-semibold hover:text-green-700">
-                Start Tracking →
+<div class="trackgrams-container min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl mx-auto">
+        <!-- Hero Section -->
+        <div class="text-center mb-12 fade-in">
+            <h1 class="text-5xl font-bold text-white mb-4">🍎 Track Grams</h1>
+            <p class="text-xl text-white/80 mb-8">Your personal calorie and nutrition tracking companion</p>
+            <a href="{% url 'trackgrams:track' %}" class="inline-block btn-primary px-8 py-4 rounded-2xl font-semibold text-lg">
+                Start Tracking
             </a>
         </div>
         
-        <div class="bg-white rounded-lg shadow-lg p-6">
-            <div class="text-3xl mb-4">🥗</div>
-            <h3 class="text-xl font-bold mb-3">Nutrition Analysis</h3>
-            <p class="text-gray-600 mb-4">Get detailed breakdowns of macros and micronutrients.</p>
-            <a href="#" class="text-green-600 font-semibold hover:text-green-700">
-                View Analysis →
-            </a>
-        </div>
-        
-        <div class="bg-white rounded-lg shadow-lg p-6">
-            <div class="text-3xl mb-4">🎯</div>
-            <h3 class="text-xl font-bold mb-3">Set Goals</h3>
-            <p class="text-gray-600 mb-4">Define your health goals and track your progress over time.</p>
-            <a href="#" class="text-green-600 font-semibold hover:text-green-700">
-                Set Goals →
-            </a>
+        <!-- Features Grid -->
+        <div class="grid md:grid-cols-3 gap-6 fade-in">
+            <div class="glass-card p-6">
+                <div class="text-4xl mb-4 text-center">📊</div>
+                <h3 class="text-xl font-bold text-white mb-3 text-center">Track Calories</h3>
+                <p class="text-white/70 mb-4 text-center text-sm">Monitor your daily caloric intake with our easy-to-use food database.</p>
+                <div class="text-center">
+                    <a href="{% url 'trackgrams:track' %}" class="btn-secondary inline-block px-4 py-2 rounded-xl text-sm font-medium">
+                        Start Tracking →
+                    </a>
+                </div>
+            </div>
+            
+            <div class="glass-card p-6">
+                <div class="text-4xl mb-4 text-center">🥗</div>
+                <h3 class="text-xl font-bold text-white mb-3 text-center">Nutrition Analysis</h3>
+                <p class="text-white/70 mb-4 text-center text-sm">Get detailed breakdowns of macros and micronutrients.</p>
+                <div class="text-center">
+                    <a href="{% url 'trackgrams:track' %}" class="btn-secondary inline-block px-4 py-2 rounded-xl text-sm font-medium">
+                        View Analysis →
+                    </a>
+                </div>
+            </div>
+            
+            <div class="glass-card p-6">
+                <div class="text-4xl mb-4 text-center">🎯</div>
+                <h3 class="text-xl font-bold text-white mb-3 text-center">Set Goals</h3>
+                <p class="text-white/70 mb-4 text-center text-sm">Define your health goals and track your progress over time.</p>
+                <div class="text-center">
+                    <a href="{% url 'trackgrams:track' %}" class="btn-secondary inline-block px-4 py-2 rounded-xl text-sm font-medium">
+                        Set Goals →
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
