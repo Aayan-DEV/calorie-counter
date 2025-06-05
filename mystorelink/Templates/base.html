@@ -118,6 +118,34 @@
                 padding: 1.5rem 1rem;
             }
             
+            /* Improve text contrast on mobile */
+            .app-card {
+                background: rgba(0, 0, 0, 0.4);
+                backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+            
+            .app-card:hover {
+                background: rgba(0, 0, 0, 0.5);
+            }
+            
+            /* Make text more visible on mobile */
+            .app-card h3 {
+                color: #ffffff !important;
+                text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            }
+            
+            .app-card p {
+                color: #e5e7eb !important;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+            }
+            
+            /* Improve greeting text */
+            h1 {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+                color: #ffffff !important;
+            }
+            
             .tooltip-container {
                 position: static;
                 margin-top: 1rem;
@@ -131,10 +159,12 @@
                 transform: none;
                 margin: 0.5rem auto 0;
                 max-width: 90%;
-                background: rgba(0, 0, 0, 0.8);
+                background: rgba(0, 0, 0, 0.9);
                 border-radius: 0.5rem;
                 padding: 0.5rem 1rem;
                 font-size: 0.875rem;
+                color: #ffffff;
+                text-shadow: none;
             }
             
             .tooltip::after {
