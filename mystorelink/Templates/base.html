@@ -158,16 +158,25 @@
             }
         }
         
-        /* Fix for iOS Safari backdrop-filter */
-        @supports (-webkit-touch-callout: none) {
-            .glow-button, .app-card, .logout-button, .tooltip {
-                background: rgba(255, 255, 255, 0.9);
+                /* Fix for iOS Safari backdrop-filter */
+                @supports (-webkit-touch-callout: none) {
+                .glow-button {
+                    background: rgba(255, 255, 255, 0.9);
+                }
+                
+                .app-card {
+                    background: rgba(255, 255, 255, 0.15);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                }
+                
+                .logout-button {
+                    background: rgba(0, 0, 0, 0.4);
+                }
+                
+                .tooltip {
+                    background: rgba(0, 0, 0, 0.9);
+                }
             }
-            
-            .tooltip {
-                background: rgba(0, 0, 0, 0.9);
-            }
-        }
     </style>
 </head>
 <body>
