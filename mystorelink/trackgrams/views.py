@@ -11,6 +11,90 @@ from django.shortcuts import render
 from django.core.files.base import ContentFile
 from .models import Photo, FoodEntry
 from django.contrib.auth.decorators import login_required
+import cv2
+import numpy as np
+from PIL import Image
+from pyzbar.pyzbar import decode
+from io import BytesIO
+
+def enhanced_barcode_detection(image_file):
+    """Enhanced barcode detection with multiple preprocessing approaches"""
+    # Reset file pointer
+    image_file.seek(0)
+    
+    # Load image with PIL
+    pil_image = Image.open(image_file)
+    
+    # Convert to OpenCV format
+    cv_image = cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
+    
+    # Try multiple approaches
+    approaches = [
+        # Approach 1: Original image
+        lambda img: img,
+        
+        # Approach 2: Resize to smaller resolution
+        lambda img: cv2.resize(img, (1024, 768)),
+        
+        # Approach 3: Grayscale conversion
+        lambda img: cv2.cvtColor(img, cv2.COLOR_BGR2GRAY),
+        
+        # Approach 4: Gaussian blur + threshold
+        lambda img: cv2.threshold(
+            cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (5, 5), 0),
+            0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+        )[1],
+        
+        # Approach 5: Adaptive threshold
+        lambda img: cv2.adaptiveThreshold(
+            cv2.cvtColor(img, cv2.COLOR_BGR2GRAY),
+            255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2
+        ),
+        
+        # Approach 6: Edge enhancement
+        lambda img: cv2.Canny(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), 50, 150),
+        
+        # Approach 7: Morphological operations
+        lambda img: cv2.morphologyEx(
+            cv2.cvtColor(img, cv2.COLOR_BGR2GRAY),
+            cv2.MORPH_CLOSE,
+            cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        )
+    ]
+    
+    # Try different rotations for each approach
+    rotations = [0, 90, 180, 270]
+    
+    for i, approach in enumerate(approaches):
+        try:
+            processed_img = approach(cv_image.copy())
+            
+            # Try different rotations
+            for rotation in rotations:
+                if rotation != 0:
+                    if len(processed_img.shape) == 3:
+                        h, w = processed_img.shape[:2]
+                    else:
+                        h, w = processed_img.shape
+                    
+                    center = (w // 2, h // 2)
+                    matrix = cv2.getRotationMatrix2D(center, rotation, 1.0)
+                    rotated_img = cv2.warpAffine(processed_img, matrix, (w, h))
+                else:
+                    rotated_img = processed_img
+                
+                # Try pyzbar detection
+                barcodes = decode(rotated_img)
+                
+                if barcodes:
+                    print(f"✅ Barcode detected with approach {i+1}, rotation {rotation}°")
+                    return barcodes[0].data.decode('utf-8')
+                    
+        except Exception as e:
+            print(f"❌ Approach {i+1} failed: {str(e)}")
+            continue
+    
+    return None
 
 @login_required
 def camera_capture(request):
@@ -545,37 +629,52 @@ def delete_food_entry(request):
         'message': 'Invalid request method'
     })
 
-async def call_barcode_api(image_file, grams, country="US"):
-    """Call your barcode nutrition API with image file and grams"""
+async def call_barcode_api(image_file, grams):
+    """Enhanced barcode API call with local preprocessing and manual barcode endpoint"""
     try:
-        import httpx
-        async with httpx.AsyncClient(timeout=30.0) as client:
-            files = {'image': image_file}
-            data = {
-                'grams': grams,
-                'country': country,
-                'force_method': 'auto'
-            }
-            headers = {
-                'Authorization': f'Bearer {settings.NUTRITION_API_KEY}'
-            }
+        # First try local enhanced detection
+        print("🔍 Trying enhanced local barcode detection...")
+        local_barcode = enhanced_barcode_detection(image_file)
+        
+        if local_barcode:
+            print(f"✅ Local detection successful: {local_barcode}")
             
-            response = await client.post(
-                f"{settings.NUTRITION_API_URL}/analyze-nutrition-barcode",
-                files=files,
-                data=data,
-                headers=headers
-            )
-            
-            if response.status_code == 200:
-                return response.json()
-            else:
-                return {
-                    'status': 'error',
-                    'message': f'API returned status {response.status_code}'
+            # Use the manual barcode endpoint with extracted barcode
+            import httpx
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                data = {
+                    'barcode': local_barcode,
+                    'grams': grams
+                }
+                headers = {
+                    'Authorization': f'Bearer {settings.NUTRITION_API_KEY}'
                 }
                 
+                response = await client.post(
+                    f"{settings.NUTRITION_API_URL}/analyze-nutrition-barcode-manual",
+                    data=data,
+                    headers=headers
+                )
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    print(f"✅ Manual barcode API successful: {result.get('product_name', 'Unknown')}")
+                    return result
+                else:
+                    print(f"❌ Manual barcode API failed: {response.status_code}")
+                    return {
+                        'status': 'error',
+                        'message': f'Manual barcode API returned status {response.status_code}'
+                    }
+        else:
+            print("❌ No barcode detected locally")
+            return {
+                'status': 'error',
+                'message': 'No barcode detected in image'
+            }
+                
     except Exception as e:
+        print(f"❌ Barcode API call failed: {str(e)}")
         return {
             'status': 'error',
             'message': f'API call failed: {str(e)}'
@@ -637,9 +736,10 @@ def analyze_barcode(request):
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             
+            # In the analyze_barcode function, update the API call (around line 745)
             try:
                 result = loop.run_until_complete(
-                    call_barcode_api(image_file, grams)
+                    call_barcode_api(image_file, grams)  # Removed country parameter
                 )
                 
                 print(f"Raw Barcode API Response: {result}")  # Debug logging
