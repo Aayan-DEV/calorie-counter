@@ -3,52 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TrackGrams - Track Calories by Scanning Nutrition Labels & Barcodes</title>
+    <title>TrackGrams - Nutrition Camera Scanner</title>
     
     <!-- Favicon -->
     {% load static %}
     <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Track calories and nutrition by scanning food labels and barcodes with TrackGrams. AI-powered nutrition analysis and calorie counting made easy.">
-    <meta name="keywords" content="nutrition tracker, barcode scanner, calorie counter, food tracking, nutrition labels, AI nutrition">
+    <meta name="description" content="Track calories and nutrition by scanning food labels and barcodes with TrackGrams. Share your nutrition journey with friends, family, and the world.">
+    <meta name="keywords" content="TrackGrams, nutrition tracker, barcode scanner, calorie counter, food tracking, nutrition labels">
     <meta name="robots" content="index, follow">
     
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="TrackGrams - Track Calories by Scanning Nutrition Labels & Barcodes">
-    <meta property="og:description" content="AI-powered nutrition tracking app that scans food labels and barcodes to automatically log calories, macros, and nutritional information.">
+    <!-- Open Graph Meta Tags (YouTube-style) -->
+    <meta property="og:title" content="TrackGrams">
+    <meta property="og:description" content="Track calories by scanning nutrition labels and barcodes, and share it all with friends, family, and the world on TrackGrams.">
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.png' %}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="TrackGrams - Nutrition Scanner">
+    <meta property="og:image:alt" content="TrackGrams - Nutrition Camera Scanner">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="TrackGrams by MyStoreLink">
+    <meta property="og:site_name" content="TrackGrams">
     
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="TrackGrams - Track Calories by Scanning Labels & Barcodes">
-    <meta name="twitter:description" content="AI-powered nutrition tracking. Scan food labels and barcodes to automatically log calories and nutrition.">
+    <meta name="twitter:title" content="TrackGrams">
+    <meta name="twitter:description" content="Track calories by scanning nutrition labels and barcodes, and share it all with friends, family, and the world.">
     <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.png' %}">
-    <meta name="twitter:image:alt" content="TrackGrams Logo">
-    
-    <!-- Schema.org for TrackGrams -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "MobileApplication",
-      "name": "TrackGrams",
-      "description": "Track calories and nutrition by scanning food labels and barcodes",
-      "applicationCategory": "HealthApplication",
-      "operatingSystem": "Web Browser",
-      "url": "{{ request.build_absolute_uri }}",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      }
-    }
-    </script>
     
     <script src="https://cdn.tailwindcss.com"></script>
     {% csrf_token %}

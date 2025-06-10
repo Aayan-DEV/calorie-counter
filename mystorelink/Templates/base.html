@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{% block title %}MyStoreLink - Multiple Apps Platform{% endblock %}</title>
+    <title>{% block title %}MyStoreLink - Multiple Productivity Apps{% endblock %}</title>
     
     <!-- Favicon -->
     {% load static %}
@@ -13,54 +13,35 @@
     <link rel="shortcut icon" href="{% static 'images/logo.png' %}">
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="{% block description %}MyStoreLink offers multiple powerful apps including TrackGrams for nutrition tracking by scanning labels and barcodes, and more productivity tools.{% endblock %}">
-    <meta name="keywords" content="{% block keywords %}nutrition tracker, barcode scanner, calorie counter, food tracking, productivity apps{% endblock %}">
+    <meta name="description" content="{% block description %}Discover powerful productivity apps including TrackGrams for nutrition tracking by scanning labels and barcodes, and more tools to enhance your daily life.{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}productivity apps, nutrition tracker, barcode scanner, calorie counter, food tracking, MyStoreLink{% endblock %}">
     <meta name="author" content="MyStoreLink">
     <meta name="robots" content="index, follow">
     
-    <!-- Open Graph Meta Tags (Facebook, WhatsApp, Discord) -->
-    <meta property="og:title" content="{% block og_title %}MyStoreLink - Multiple Apps Platform{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Discover powerful apps like TrackGrams for nutrition tracking by scanning labels and barcodes. Multiple productivity tools in one platform.{% endblock %}">
+    <!-- Open Graph Meta Tags (YouTube-style embeds) -->
+    <meta property="og:title" content="{% block og_title %}MyStoreLink{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Discover powerful apps including TrackGrams for nutrition tracking, and share it all with friends, family, and the world on MyStoreLink.{% endblock %}">
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.png' %}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="MyStoreLink Logo">
+    <meta property="og:image:alt" content="MyStoreLink - Multiple Productivity Apps">
     <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="MyStoreLink">
     <meta property="og:locale" content="en_US">
     
-    <!-- Twitter Card Meta Tags (Twitter, some other platforms) -->
+    <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@mystorelink">
-    <meta name="twitter:creator" content="@mystorelink">
-    <meta name="twitter:title" content="{% block twitter_title %}MyStoreLink - Multiple Apps Platform{% endblock %}">
-    <meta name="twitter:description" content="{% block twitter_description %}Discover powerful apps like TrackGrams for nutrition tracking by scanning labels and barcodes.{% endblock %}">
+    <meta name="twitter:title" content="{% block twitter_title %}MyStoreLink{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Discover powerful apps including TrackGrams for nutrition tracking, and share it all with friends, family, and the world.{% endblock %}">
     <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.png' %}">
     <meta name="twitter:image:alt" content="MyStoreLink Logo">
     
-    <!-- Additional Meta Tags for Better Embeds -->
+    <!-- Additional Meta Tags -->
     <meta name="theme-color" content="#1a2e32">
     <meta name="msapplication-TileColor" content="#1a2e32">
     <meta name="application-name" content="MyStoreLink">
-    
-    <!-- Schema.org structured data for rich snippets -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "{% block schema_name %}MyStoreLink{% endblock %}",
-      "description": "{% block schema_description %}Multiple productivity apps including TrackGrams for nutrition tracking{% endblock %}",
-      "url": "{{ request.build_absolute_uri }}",
-      "applicationCategory": "ProductivityApplication",
-      "operatingSystem": "Web Browser",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      }
-    }
-    </script>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
