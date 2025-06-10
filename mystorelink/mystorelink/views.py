@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 from credits.models import UserCredit, CreditTransaction
 from django.db import models
 
@@ -33,3 +34,12 @@ def home_view(request):
         context['credits_type'] = credits_type
     
     return render(request, 'home.html', context)
+
+
+def robots_txt(request):
+    lines = [
+        "User-Agent: *",
+        "Allow: /",
+        "Sitemap: https://mystorel.ink/sitemap.xml",  # Replace with your domain
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")

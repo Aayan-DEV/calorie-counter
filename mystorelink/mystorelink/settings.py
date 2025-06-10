@@ -97,6 +97,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',  # Required for allauth
     'django_extensions',
+    'django.contrib.sitemaps',
     
     # Allauth apps
     'allauth',
@@ -228,3 +229,6 @@ STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
 # Update LOGIN_REDIRECT_URL to go to pricing page
 LOGIN_REDIRECT_URL = '/pricing/'
 LOGOUT_REDIRECT_URL = '/'
+
+SITE_ID = 1
+SITE_URL = 'https://mystorel.ink'
