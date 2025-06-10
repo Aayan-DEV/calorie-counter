@@ -31,11 +31,11 @@ class Photo(models.Model):
 class FoodEntry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     food_name = models.CharField(max_length=200)
-    grams = models.IntegerField()  # Add this field
-    calories = models.IntegerField()  # Rename from calories_per_unit
-    protein = models.IntegerField(default=0)  # Add this field
-    carbs = models.IntegerField(default=0)    # Add this field
-    fat = models.IntegerField(default=0)      # Add this field
+    grams = models.IntegerField() 
+    calories = models.IntegerField()
+    protein = models.IntegerField(default=0) 
+    carbs = models.IntegerField(default=0)    
+    sugar = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

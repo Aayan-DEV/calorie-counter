@@ -342,8 +342,8 @@
                         <div class="text-white/70 text-sm">Carbs (g)</div>
                     </div>
                     <div class="nutrition-card p-4 rounded-xl text-center">
-                        <div class="text-2xl font-bold text-white mb-1" id="fat">-</div>
-                        <div class="text-white/70 text-sm">Fat (g)</div>
+                        <div class="text-2xl font-bold text-white mb-1" id="sugar"></div>
+                        <div class="text-white/70 text-sm">Sugar (g)</div>
                     </div>
                 </div>
                 
@@ -388,8 +388,8 @@
                         <div class="text-white/60">carbs</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-white font-medium" id="totalFat">0g</div>
-                        <div class="text-white/60">fat</div>
+                        <div class="text-white font-medium" id="totalSugar">0g</div>
+                        <div class="text-white/60">sugar</div>
                     </div>
                 </div>
             </div>
@@ -689,13 +689,13 @@
                 calories: formatNumber(nutrition.calories),
                 protein: formatNumber(nutrition.protein),
                 carbs: formatNumber(nutrition.carbs),
-                fat: formatNumber(nutrition.fat)
+                sugar: formatNumber(nutrition.sugar)
             };
             
             document.getElementById('calories').textContent = currentNutritionData.calories;
             document.getElementById('protein').textContent = currentNutritionData.protein;
             document.getElementById('carbs').textContent = currentNutritionData.carbs;
-            document.getElementById('fat').textContent = currentNutritionData.fat;
+            document.getElementById('sugar').textContent = currentNutritionData.sugar;
             
             showSection('nutritionAnalysis');
         }
@@ -752,7 +752,7 @@
                 calories: currentNutritionData.calories,
                 protein: currentNutritionData.protein,
                 carbs: currentNutritionData.carbs,
-                fat: currentNutritionData.fat
+                sugar: currentNutritionData.sugar
             };
             
             console.log('Adding food entry:', nutritionData);
@@ -789,7 +789,7 @@
                         calories: currentNutritionData.calories,
                         protein: currentNutritionData.protein,
                         carbs: currentNutritionData.carbs,
-                        fat: currentNutritionData.fat,
+                        sugar: currentNutritionData.sugar,
                         created_at: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                     };
                     
@@ -887,8 +887,8 @@
                             <div class="text-white/60">carbs</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-white font-medium">${entry.fat}g</div>
-                            <div class="text-white/60">fat</div>
+                            <div class="text-white font-medium">${entry.sugar}g</div>
+                            <div class="text-white/60">sugar</div>
                         </div>
                     </div>
                     <div class="text-white/50 text-xs mt-2 text-right">${entry.created_at}</div>
@@ -908,14 +908,14 @@
                 acc.calories += entry.calories || 0;
                 acc.protein += entry.protein || 0;
                 acc.carbs += entry.carbs || 0;
-                acc.fat += entry.fat || 0;
+                acc.sugar += entry.sugar || 0;
                 return acc;
-            }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
+            }, { calories: 0, protein: 0, carbs: 0, sugar: 0 });
             
             document.getElementById('totalCalories').textContent = totals.calories;
             document.getElementById('totalProtein').textContent = totals.protein + 'g';
             document.getElementById('totalCarbs').textContent = totals.carbs + 'g';
-            document.getElementById('totalFat').textContent = totals.fat + 'g';
+            document.getElementById('totalSugar').textContent = totals.sugar + 'g';
             
             document.getElementById('dailyTotals').classList.remove('hidden');
             

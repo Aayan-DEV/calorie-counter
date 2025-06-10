@@ -24,7 +24,7 @@ class PhotoAdmin(admin.ModelAdmin):
 
 @admin.register(FoodEntry)
 class FoodEntryAdmin(admin.ModelAdmin):
-    list_display = ['food_name', 'user', 'grams', 'calories', 'protein', 'carbs', 'fat', 'created_at']
+    list_display = ['food_name', 'user', 'grams', 'calories', 'protein', 'carbs', 'sugar', 'created_at']
     list_filter = ['created_at', 'user']
     search_fields = ['food_name', 'user__username']
     readonly_fields = ['created_at', 'updated_at']
@@ -35,7 +35,7 @@ class FoodEntryAdmin(admin.ModelAdmin):
             'fields': ('food_name', 'grams')
         }),
         ('Nutrition Information', {
-            'fields': ('calories', 'protein', 'carbs', 'fat')
+            'fields': ('calories', 'protein', 'carbs', 'sugar')
         }),
         ('User Information', {
             'fields': ('user',)

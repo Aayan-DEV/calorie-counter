@@ -199,9 +199,9 @@ def analyze_nutrition(request):
                     calories = nutrition_data.get('calories', 0)
                     protein = nutrition_data.get('protein_grams', nutrition_data.get('protein', 0))
                     carbs = nutrition_data.get('carbs_grams', nutrition_data.get('carbs', 0))
-                    fat = nutrition_data.get('fat_grams', nutrition_data.get('fat', 0))
+                    sugar = nutrition_data.get('sugar_grams', nutrition_data.get('sugar', 0))
                     
-                    print(f"Extracted nutrition - Calories: {calories}, Protein: {protein}, Carbs: {carbs}, Fat: {fat}")
+                    print(f"Extracted nutrition - Calories: {calories}, Protein: {protein}, Carbs: {carbs}, Sugar: {sugar}")
                     
                     # Format the response properly
                     response_data = {
@@ -210,7 +210,7 @@ def analyze_nutrition(request):
                             'calories': float(calories) if calories else 0,
                             'protein': float(protein) if protein else 0,
                             'carbs': float(carbs) if carbs else 0,
-                            'fat': float(fat) if fat else 0
+                            'sugar': float(sugar) if sugar else 0
                         },
                         'credits_remaining': user_credit.total_credits,
                         'debug_info': {
@@ -268,7 +268,7 @@ def add_food_entry(request):
                 calories=data.get('calories', 0),
                 protein=data.get('protein', 0),
                 carbs=data.get('carbs', 0),
-                fat=data.get('fat', 0)
+                sugar=data.get('sugar', 0)
             )
             
             return JsonResponse({
@@ -453,7 +453,7 @@ def get_food_entries(request):
                         'calories': entry.calories,
                         'protein': entry.protein,
                         'carbs': entry.carbs,
-                        'fat': entry.fat,
+                        'sugar': entry.sugar,
                         'created_at': entry.created_at.strftime('%H:%M'),
                         'created_at_full': entry.created_at.isoformat()
                     }
