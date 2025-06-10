@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
         body {
             font-family: 'Space Grotesk', sans-serif;
@@ -55,6 +56,39 @@
         
         .glow-button:hover .google-icon {
             transform: scale(1.05);
+        }
+        
+        /* Credit Card Styles */
+        .credit-card {
+            transition: all 0.3s ease;
+        }
+        
+        .credit-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .credit-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        .credit-card:hover .credit-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        .credit-number {
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .buy-more-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .buy-more-btn:hover {
+            transform: scale(1.1);
         }
         
         /* App Card Styles */
@@ -118,6 +152,14 @@
                 padding: 1.5rem 1rem;
             }
             
+            .credit-card {
+                margin-bottom: 2rem;
+            }
+            
+            .credit-number {
+                font-size: 1.5rem;
+            }
+            
             .tooltip-container {
                 position: static;
                 margin-top: 1rem;
@@ -149,7 +191,7 @@
         /* Ensure touch targets are large enough */
         @media (max-width: 640px) {
             .glow-button, .app-card, .logout-button {
-                min-height: 44px; /* Apple's recommended minimum touch target size */
+                min-height: 44px;
             }
             
             .google-icon svg, .app-icon svg {
@@ -158,25 +200,25 @@
             }
         }
         
-                /* Fix for iOS Safari backdrop-filter */
-                @supports (-webkit-touch-callout: none) {
-                .glow-button {
-                    background: rgba(255, 255, 255, 0.9);
-                }
-                
-                .app-card {
-                    background: rgba(255, 255, 255, 0.15);
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                }
-                
-                .logout-button {
-                    background: rgba(0, 0, 0, 0.4);
-                }
-                
-                .tooltip {
-                    background: rgba(0, 0, 0, 0.9);
-                }
+        /* Fix for iOS Safari backdrop-filter */
+        @supports (-webkit-touch-callout: none) {
+            .glow-button {
+                background: rgba(255, 255, 255, 0.9);
             }
+            
+            .app-card {
+                background: rgba(255, 255, 255, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+            
+            .logout-button {
+                background: rgba(0, 0, 0, 0.4);
+            }
+            
+            .tooltip {
+                background: rgba(0, 0, 0, 0.9);
+            }
+        }
     </style>
 </head>
 <body>
@@ -190,7 +232,7 @@
     </a>
     {% endif %}
     
-    <div class="w-full max-w-md mx-auto">
+    <div class="w-full mx-auto">
         {% block content %}
         {% endblock %}
     </div>

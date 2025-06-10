@@ -6,3 +6,4 @@ Start new project : django-admin startproject name
 Create a new Templates folder in main "name". 
 Add this line to Templates in Settings.py : 'DIRS': [BASE_DIR / 'templates'],
 For https: python manage.py runserver_plus --cert-file cert.pem --key-file key.pem 0.0.0.0:8000
+For Ngrok : ./ngrok http --domain=pet-genuinely-raccoon.ngrok-free.app https://127.0.0.1:8000

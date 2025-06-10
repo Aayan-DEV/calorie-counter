@@ -105,7 +105,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     
     # Your apps
+    'mystorelink',
     'trackgrams',
+    'credits',
 ]
 
 ROOT_URLCONF = 'mystorelink.urls'
@@ -217,3 +219,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 NUTRITION_API_URL = 'https://calorie-counter-api-production.up.railway.app'
 
 NUTRITION_API_KEY = config('NUTRITION_API_KEY')
+
+# Stripe Configuration
+STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='')
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+
+# Update LOGIN_REDIRECT_URL to go to pricing page
+LOGIN_REDIRECT_URL = '/pricing/'
+LOGOUT_REDIRECT_URL = '/'

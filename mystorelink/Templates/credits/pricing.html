@@ -1,0 +1,947 @@
+{% extends 'base.html' %}
+{% load static %}
+{% csrf_token %}
+{% block title %}Credits - MyStoreLink{% endblock %}
+
+{% block content %}
+<!-- Error and Success Notification Bars -->
+<div id="errorNotification" class="error-notification" style="display: none;">
+    <div class="error-content">
+        <span class="error-icon">⚠️</span>
+        <span class="error-message" id="errorMessage"></span>
+        <button class="error-close" onclick="hideError()">×</button>
+    </div>
+</div>
+
+<div id="successNotification" class="success-notification" style="display: none;">
+    <div class="success-content">
+        <span class="success-icon">✅</span>
+        <span class="success-message" id="successMessage"></span>
+        <button class="success-close" onclick="hideSuccess()">×</button>
+    </div>
+</div>
+
+<style>
+.logout-button {
+    display: none !important;
+}
+
+/* Error and Success Notification Styles */
+.error-notification, .success-notification {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    padding: 1rem;
+    backdrop-filter: blur(10px);
+    animation: slideDown 0.3s ease-out;
+}
+
+.error-notification {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.9));
+    border-bottom: 3px solid #333333;
+}
+
+.success-notification {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.9), rgba(40, 167, 69, 0.8));
+    border-bottom: 3px solid #28a745;
+}
+
+.error-content, .success-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+}
+
+.error-content {
+    color: #000000;
+}
+
+.success-content {
+    color: white;
+}
+
+.error-icon, .success-icon {
+    font-size: 1.2rem;
+}
+
+.error-message, .success-message {
+    flex: 1;
+    font-size: 1rem;
+}
+
+.error-close, .success-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.error-close {
+    color: #000000;
+}
+
+.success-close {
+    color: white;
+}
+
+.error-close:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.success-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+.error-notification.hiding, .success-notification.hiding {
+    animation: slideUp 0.3s ease-out;
+}
+
+/* Credit Purchase Wizard Styles */
+.wizard-wrapper {
+    min-height: 100vh;
+    padding: 1rem;
+    padding-top: 2rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    background: transparent;
+}
+
+.wizard-container {
+    max-width: 600px;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+.wizard-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 24px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.wizard-step {
+    display: none;
+}
+
+.wizard-step.active {
+    display: block;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.wizard-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1rem;
+    font-family: 'Space Grotesk', sans-serif;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.wizard-subtitle {
+    font-size: 1.1rem;
+    color: #e0e0e0;
+    margin-bottom: 2rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+}
+
+.credits-remaining {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    backdrop-filter: blur(15px);
+}
+
+.credits-count {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    font-family: 'Space Grotesk', sans-serif;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.credits-label {
+    color: #d0d0d0;
+    font-size: 0.9rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+}
+
+.wizard-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.wizard-btn {
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    text-decoration: none;
+    display: inline-block;
+    font-family: 'Space Grotesk', sans-serif;
+    min-width: 140px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.wizard-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.wizard-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.wizard-btn.secondary {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.wizard-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+.plan-display {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    margin: 2rem 0;
+    backdrop-filter: blur(15px);
+}
+
+.plan-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 1rem;
+    font-family: 'Space Grotesk', sans-serif;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.plan-price {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 0.5rem;
+    font-family: 'Space Grotesk', sans-serif;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.plan-details {
+    color: #d0d0d0;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+}
+
+.credit-input-section {
+    margin: 2rem 0;
+}
+
+.credit-input {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+    width: 200px;
+    margin: 0 auto;
+    font-family: 'Space Grotesk', sans-serif;
+    backdrop-filter: blur(10px);
+}
+
+.credit-input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.credit-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.back-btn {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    color: #ffffff;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    text-decoration: none;
+    font-family: 'Space Grotesk', sans-serif;
+    z-index: 100;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* Mobile-optimized compact design */
+@media (max-width: 768px) {
+    .wizard-wrapper {
+        padding: 0.5rem;
+        padding-top: 1rem;
+        min-height: 100vh;
+    }
+    
+    .wizard-card {
+        padding: 1.25rem;
+        border-radius: 16px;
+        margin: 0;
+    }
+    
+    .wizard-title {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .wizard-subtitle {
+        font-size: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .credits-remaining {
+        padding: 0.75rem;
+        margin-bottom: 1.25rem;
+        border-radius: 12px;
+    }
+    
+    .credits-count {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .credits-label {
+        font-size: 0.8rem;
+    }
+    
+    .wizard-buttons {
+        gap: 0.75rem;
+        flex-direction: column;
+    }
+    
+    .wizard-btn {
+        padding: 0.875rem 1.5rem;
+        font-size: 0.95rem;
+        min-width: 100%;
+        border-radius: 12px;
+        min-height: 48px;
+        touch-action: manipulation;
+    }
+    
+    .plan-display {
+        padding: 1.25rem;
+        margin: 1.25rem 0;
+        border-radius: 16px;
+    }
+    
+    .plan-name {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .plan-price {
+        font-size: 2rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .plan-details {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .credit-input-section {
+        margin: 1.25rem 0;
+    }
+    
+    .credit-input {
+        width: 100%;
+        max-width: 150px;
+        padding: 0.75rem;
+        font-size: 16px;
+        border-radius: 8px;
+    }
+    
+    .back-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        top: 0.75rem;
+        left: 0.75rem;
+        border-radius: 8px;
+        z-index: 100;
+    }
+    
+    .wizard-container {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+}
+
+/* Extra compact for very small screens */
+@media (max-width: 480px) {
+    .wizard-wrapper {
+        padding: 0.25rem;
+        padding-top: 0.75rem;
+    }
+    
+    .wizard-card {
+        padding: 1rem;
+        border-radius: 12px;
+    }
+    
+    .wizard-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .wizard-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+    
+    .credits-remaining {
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .credits-count {
+        font-size: 1.25rem;
+    }
+    
+    .plan-display {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .plan-price {
+        font-size: 1.75rem;
+    }
+    
+    .wizard-btn {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.9rem;
+    }
+    
+    .back-btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.8rem;
+        top: 0.5rem;
+        left: 0.5rem;
+    }
+}
+
+</style>
+
+<div class="wizard-wrapper">
+    <!-- Fixed Back Button - Outside wizard container -->
+    <a href="#" class="back-btn" id="fixedBackBtn" onclick="handleBackClick()" style="display: none;">← Back</a>
+    
+    <div class="wizard-container">
+        <!-- Step 1: Initial Question -->
+        <div class="wizard-step active" id="step1">
+            <div class="wizard-card">
+                <h1 class="wizard-title">💳 Credits</h1>
+                <p class="wizard-subtitle">Would you like to buy credits?</p>
+                
+                <div class="credits-remaining">
+                    <div class="credits-count" id="creditsCount">{{ user_credits|default:"0" }}</div>
+                    <div class="credits-label">
+                        {% if credits_type == 'paid' %}
+                            Paid Credits
+                        {% else %}
+                            Free Credits
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="wizard-buttons">
+                    <button class="wizard-btn" onclick="nextStep(2)">Yes, Buy Credits</button>
+                    <a href="{% url 'home' %}" class="wizard-btn secondary">No, Continue Free</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Step 2: Plan Display -->
+        <div class="wizard-step" id="step2">
+            <div class="wizard-card">
+                <h1 class="wizard-title">✨ Your Plan</h1>
+                
+                <div class="plan-display">
+                    <div class="plan-name" id="planName">One-time Credit Purchase</div>
+                    
+                    <div class="credit-input-section">
+                        <label for="creditAmount" class="credits-label">Number of Credits:</label>
+                        <input type="number" id="creditAmount" class="credit-input" value="100" min="10" max="10000" oninput="updatePrice()">
+                    </div>
+                    
+                    <div class="plan-price" id="planPrice">$5.00</div>
+                    <div class="plan-details" id="planDetails">$0.05 per credit</div>
+                </div>
+                
+                <div class="wizard-buttons">
+                    <button class="wizard-btn" id="paymentBtn" onclick="proceedToPayment()">Proceed to Payment</button>
+                    <button class="wizard-btn secondary" onclick="handleBackClick()">Change Plan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentStep = 1;
+
+// Error and Success notification functions
+function showError(message) {
+    const notification = document.getElementById('errorNotification');
+    const messageElement = document.getElementById('errorMessage');
+    messageElement.textContent = message;
+    notification.style.display = 'block';
+    notification.classList.remove('hiding');
+    
+    console.error('Error:', message);
+    
+    setTimeout(() => {
+        hideError();
+    }, 5000);
+}
+
+function showSuccess(message) {
+    const notification = document.getElementById('successNotification');
+    const messageElement = document.getElementById('successMessage');
+    messageElement.textContent = message;
+    notification.style.display = 'block';
+    notification.classList.remove('hiding');
+    
+    setTimeout(() => {
+        hideSuccess();
+    }, 3000);
+}
+
+function hideError() {
+    const notification = document.getElementById('errorNotification');
+    notification.classList.add('hiding');
+    setTimeout(() => {
+        notification.style.display = 'none';
+        notification.classList.remove('hiding');
+    }, 300);
+}
+
+function hideSuccess() {
+    const notification = document.getElementById('successNotification');
+    notification.classList.add('hiding');
+    setTimeout(() => {
+        notification.style.display = 'none';
+        notification.classList.remove('hiding');
+    }, 300);
+}
+
+// Navigation functions
+function nextStep(step) {
+    document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+    document.getElementById(`step${step}`).classList.add('active');
+    currentStep = step;
+    updateBackButtonVisibility();
+    
+    if (step === 2) {
+        updatePrice();
+    }
+}
+
+function updateBackButtonVisibility() {
+    const backButton = document.getElementById('fixedBackBtn');
+    if (currentStep > 1) {
+        backButton.style.display = 'block';
+    } else {
+        backButton.style.display = 'none';
+    }
+}
+
+function handleBackClick() {
+    if (currentStep > 1) {
+        nextStep(currentStep - 1);
+    }
+}
+
+function updatePrice() {
+    const credits = parseInt(document.getElementById('creditAmount').value) || 100;
+    const totalPrice = (credits * 0.05).toFixed(2);
+    
+    document.getElementById('planPrice').textContent = `$${totalPrice}`;
+    document.getElementById('planDetails').textContent = `$0.05 per credit • ${credits} credits`;
+}
+
+function proceedToPayment() {
+    const credits = parseInt(document.getElementById('creditAmount').value) || 100;
+    
+    if (credits < 10) {
+        showError('Minimum purchase is 10 credits ($0.50)');
+        return;
+    }
+    
+    const totalPrice = (credits * 0.05).toFixed(2);
+    
+    const stripeConfigured = JSON.parse('{{ stripe_configured|yesno:"true,false" }}');
+    if (!stripeConfigured) {
+        showError('Payment system is not configured. Please contact support.');
+        return;
+    }
+    
+    createPaymentIntent(credits, totalPrice);
+}
+
+// Function for creating payment intent
+function createPaymentIntent(credits, totalPrice) {
+    const paymentButton = document.getElementById('paymentBtn');
+    const originalText = paymentButton.textContent;
+    paymentButton.textContent = 'Processing...';
+    paymentButton.disabled = true;
+    
+    const timeoutId = setTimeout(() => {
+        showError('Payment request timed out. Please try again.');
+        paymentButton.textContent = originalText;
+        paymentButton.disabled = false;
+    }, 30000);
+    
+    fetch('/pricing/create-payment-intent/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            credits: credits,
+            plan_type: 'onetime'
+        })
+    })
+    .then(response => {
+        clearTimeout(timeoutId);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.error) {
+            showError(data.error);
+        } else {
+            handleStripePayment(data.client_secret, credits, totalPrice, false, data.payment_type || 'payment_intent');
+        }
+    })
+    .catch(error => {
+        clearTimeout(timeoutId);
+        console.error('Error:', error);
+        showError('Payment failed. Please check your connection and try again.');
+    })
+    .finally(() => {
+        paymentButton.textContent = originalText;
+        paymentButton.disabled = false;
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Stripe payment handling
+function handleStripePayment(clientSecret, credits, totalPrice, isSubscription = false, paymentType = 'payment_intent') {
+    // Add validation for clientSecret
+    if (!clientSecret || clientSecret === null || clientSecret === 'null') {
+        showError('Payment setup failed. Please try again or contact support.');
+        return;
+    }
+    
+    if (typeof Stripe === 'undefined') {
+        showError('Stripe is not loaded. Please refresh the page and try again.');
+        return;
+    }
+    
+    const backButton = document.getElementById('fixedBackBtn');
+    if (backButton) {
+        backButton.style.display = 'none';
+    }
+    
+    const stripe = Stripe('{{ stripe_publishable_key }}');
+    
+    // Create fullscreen modal for both mobile and desktop
+    const paymentModal = document.createElement('div');
+    paymentModal.innerHTML = `
+        <div class="fixed inset-0 flex items-center justify-center z-50" style="background: rgba(26,46,50,0.95); backdrop-filter: blur(4px);">
+            <div class="w-full h-full max-w-md bg-white shadow-2xl overflow-hidden flex flex-col" style="background: linear-gradient(135deg, #8fb3a3 0%, #5a7a7a 100%);">
+                <div class="p-6 text-center flex-shrink-0" style="background: linear-gradient(135deg, #1a2e32 0%, #455e53 100%);">
+                    <h3 class="text-xl font-bold text-white mb-2">Complete Payment</h3>
+                    <p class="text-sm" style="color: #8fb3a3;">Secure Stripe checkout</p>
+                </div>
+                
+                <div class="flex-1 p-6 overflow-y-auto">
+                    <div class="bg-white rounded-lg p-4 mb-6" style="background: rgba(255,255,255,0.9);">
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg" style="color: #1a2e32;">Credits: ${credits}</span>
+                            <span class="font-bold text-2xl" style="color: #1a2e32;">$${totalPrice}</span>
+                        </div>
+                    </div>
+                    
+                    <div id="payment-element" class="mb-6"></div>
+                    
+                    <div id="payment-messages" class="mb-6 text-sm hidden" style="color: #000000;"></div>
+                    
+                    <div class="flex flex-col gap-4">
+                        <button id="submit-payment" class="w-full text-white px-6 py-4 rounded-lg font-semibold text-lg transition-all" style="background: linear-gradient(135deg, #1a2e32 0%, #455e53 100%); box-shadow: 0 4px 12px rgba(26,46,50,0.3);">
+                            <span class="payment-text">Pay $${totalPrice}</span>
+                            <span class="loading-text hidden">Processing...</span>
+                        </button>
+                        <button id="cancel-payment" class="w-full px-6 py-4 rounded-lg text-lg transition-all" style="background: rgba(255,255,255,0.9); color: #1a2e32; border: 2px solid #5a7a7a;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="px-6 py-4 flex items-center justify-center text-sm flex-shrink-0" style="background: rgba(255,255,255,0.1); color: #8fb3a3;">
+                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    256-bit SSL secured by Stripe
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(paymentModal);
+    
+    // Create Stripe Elements
+    const elements = stripe.elements({
+        clientSecret: clientSecret,
+        appearance: {
+            theme: 'stripe',
+            variables: {
+                colorPrimary: '#1a2e32',
+                colorBackground: '#ffffff',
+                colorText: '#1a2e32',
+                colorDanger: '#000000',
+                fontFamily: 'Space Grotesk, system-ui, sans-serif',
+                spacingUnit: '6px',
+                borderRadius: '8px',
+                fontSizeBase: '16px'
+            },
+            rules: {
+                '.Input': {
+                    fontSize: '16px',
+                    padding: '14px'
+                },
+                '.Input--focus': {
+                    boxShadow: '0 0 0 2px #1a2e32'
+                },
+                '.Error': {
+                    color: '#000000'
+                }
+            }
+        }
+    });
+
+    const paymentElement = elements.create('payment', {
+        layout: {
+            type: 'tabs',
+            defaultCollapsed: false,
+            radios: false,
+            spacedAccordionItems: false
+        },
+        fields: {
+            billingDetails: {
+                name: 'auto',
+                email: 'auto',
+                phone: 'auto',
+                address: {
+                    country: 'auto',
+                    line1: 'auto',
+                    line2: 'auto',
+                    city: 'auto',
+                    state: 'auto',
+                    postalCode: 'auto'
+                }
+            }
+        },
+        wallets: {
+            applePay: 'auto',
+            googlePay: 'auto',
+            link: 'never',
+        },
+        paymentMethodTypes: ['card', 'apple_pay', 'google_pay'],
+        business: {
+            name: 'MyStoreLink'
+        },
+        applePay: {
+            style: {
+                type: 'buy',
+                theme: 'dark'
+            },
+            requestPayerName: true,
+            requestPayerEmail: true,
+            requestPayerPhone: false,
+            requestShipping: false
+        }
+    });
+    paymentElement.mount('#payment-element');
+    
+    // Handle form submission
+    const submitButton = document.getElementById('submit-payment');
+    const cancelButton = document.getElementById('cancel-payment');
+    const messagesDiv = document.getElementById('payment-messages');
+    const paymentText = submitButton.querySelector('.payment-text');
+    const loadingText = submitButton.querySelector('.loading-text');
+    
+    submitButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        submitButton.disabled = true;
+        paymentText.classList.add('hidden');
+        loadingText.classList.remove('hidden');
+        messagesDiv.classList.add('hidden');
+        
+        try {
+            const result = await stripe.confirmPayment({
+                elements,
+                confirmParams: {
+                    return_url: `${window.location.origin}/pricing/success/?credits=${credits}&amount=${totalPrice}`,
+                },
+                redirect: 'if_required'
+            });
+            
+            if (result.error) {
+                throw result.error;
+            } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+                showSuccess('Payment processed successfully!');
+                window.location.href = `/pricing/success/?credits=${credits}&amount=${totalPrice}&type=onetime`;
+            }
+            
+        } catch (error) {
+            console.error('Payment error:', error);
+            
+            let errorMessage = error.message;
+            if (error.type === 'card_error') {
+                errorMessage = 'Your card was declined. Please try a different payment method.';
+            } else if (error.type === 'validation_error') {
+                errorMessage = 'Please check your payment details and try again.';
+            }
+            
+            messagesDiv.textContent = errorMessage;
+            messagesDiv.classList.remove('hidden');
+            submitButton.disabled = false;
+            paymentText.classList.remove('hidden');
+            loadingText.classList.add('hidden');
+        }
+    });
+    
+    cancelButton.addEventListener('click', () => {
+        document.body.removeChild(paymentModal);
+        if (backButton && currentStep > 1) {
+            backButton.style.display = 'block';
+        }
+    });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    const creditsElement = document.getElementById('creditsCount');
+    if (creditsElement) {
+        creditsElement.textContent = '{{ user_credits|default:"0" }}';
+    }
+    
+    // Update credits label
+    const creditsLabel = document.querySelector('.credits-label');
+    if (creditsLabel) {
+        creditsLabel.textContent = '{{ credits_type|title }} Credits';
+    }
+    
+});
+</script>
+{% endblock %}

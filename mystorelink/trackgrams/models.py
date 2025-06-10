@@ -29,36 +29,23 @@ class Photo(models.Model):
         super().delete(*args, **kwargs)
 
 class FoodEntry(models.Model):
-    UNIT_CHOICES = [
-        ('piece', 'Piece'),
-        ('cup', 'Cup'),
-        ('gram', 'Gram'),
-        ('ounce', 'Ounce'),
-    ]
-    
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     food_name = models.CharField(max_length=200)
-    quantity = models.DecimalField(max_digits=10, decimal_places=2)
-    unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default='piece')
-    calories_per_unit = models.IntegerField()
-    total_calories = models.IntegerField()
-    date_added = models.DateTimeField(default=timezone.now)
+    grams = models.IntegerField()  # Add this field
+    calories = models.IntegerField()  # Rename from calories_per_unit
+    protein = models.IntegerField(default=0)  # Add this field
+    carbs = models.IntegerField(default=0)    # Add this field
+    fat = models.IntegerField(default=0)      # Add this field
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['-date_added']
+        ordering = ['-created_at']
         verbose_name = 'Food Entry'
         verbose_name_plural = 'Food Entries'
     
-    def save(self, *args, **kwargs):
-        # Automatically calculate total calories
-        self.total_calories = int(self.quantity * self.calories_per_unit)
-        super().save(*args, **kwargs)
-    
     def __str__(self):
-        return f"{self.food_name} - {self.quantity} {self.unit} ({self.total_calories} cal)"
-
+        return f"{self.food_name} - {self.grams}g ({self.calories} cal)"
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     daily_calorie_goal = models.IntegerField(default=2000)
