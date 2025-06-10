@@ -251,6 +251,18 @@
                 transform: translateZ(0);
             }
         }
+
+        .scan-type-btn.active {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.15));
+            border-color: rgba(34, 197, 94, 0.5);
+            color: rgb(34, 197, 94);
+        }
+
+        .scan-type-btn:not(.active) {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.8);
+        }
     </style>
 </head>
 <body class="min-h-screen p-4">
@@ -279,6 +291,22 @@
             
             <!-- Camera/Upload Section -->
             <div id="cameraSection" class="space-y-4">
+                <!-- Scan Type Selection -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-white text-center mb-4">📱 Choose Scan Type</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="nutritionLabelBtn" class="scan-type-btn btn-primary py-4 px-4 rounded-xl font-medium text-sm active">
+                            🏷️ Nutrition Label
+                        </button>
+                        <button id="barcodeBtn" class="scan-type-btn btn-secondary py-4 px-4 rounded-xl font-medium text-sm">
+                            📊 Barcode
+                        </button>
+                    </div>
+                    <div id="scanTypeDescription" class="text-center text-white/60 text-xs mt-2">
+                        Scan the nutrition facts label on food packaging
+                    </div>
+                </div>
+                
                 <div class="camera-options">
                     <button id="cameraBtn" class="btn-primary w-full py-4 px-4 rounded-xl font-medium text-sm">
                         📸 Take Photo
@@ -436,11 +464,49 @@
     </div>
     
     <script>
-        // Global variables
+       // Global variables
         let currentPhotoId = null;
         let cameraStream = null;
         let foodLogData = [];
         let currentNutritionData = null;
+        let selectedScanType = 'nutrition_label'; // Default to nutrition label
+
+        // Scan type selection
+        function selectScanType(type) {
+            selectedScanType = type;
+            
+            // Update button states
+            document.querySelectorAll('.scan-type-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('btn-secondary');
+                btn.classList.remove('btn-primary');
+            });
+            
+            const activeBtn = type === 'nutrition_label' ? 
+                document.getElementById('nutritionLabelBtn') : 
+                document.getElementById('barcodeBtn');
+            
+            activeBtn.classList.add('active');
+            activeBtn.classList.add('btn-primary');
+            activeBtn.classList.remove('btn-secondary');
+            
+            // Update description
+            const description = document.getElementById('scanTypeDescription');
+            if (type === 'nutrition_label') {
+                description.textContent = 'Scan the nutrition facts label on food packaging';
+            } else {
+                description.textContent = 'Scan the barcode to get product nutrition info';
+            }
+        }
+
+        // Event listeners for scan type buttons
+        document.getElementById('nutritionLabelBtn').addEventListener('click', () => {
+            selectScanType('nutrition_label');
+        });
+
+        document.getElementById('barcodeBtn').addEventListener('click', () => {
+            selectScanType('barcode');
+        });
         
         // Section management
         function showSection(sectionId) {
@@ -637,92 +703,98 @@
         
         // Nutrition analysis
         async function analyzeNutrition() {
-        const grams = document.getElementById('gramsInput').value;
-        
-        if (!grams || grams <= 0) {
-            showMessage('Please enter a valid weight in grams', 'error');
-            return;
-        }
-        
-        const currentCredits = parseInt(document.getElementById('creditsDisplay').textContent);
-        if (currentCredits <= 0) {
-            showCreditsPopup();
-            return;
-        }
-        
-        showSection('loading');
-        
-        try {
-            console.log('🔍 Starting nutrition analysis...');
-            console.log('📊 Request data:', {
-                photo_id: currentPhotoId,
-                grams: parseInt(grams)
-            });
+            const grams = document.getElementById('gramsInput').value;
             
-            const response = await fetch('/trackgrams/analyze/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify({
-                    photo_id: currentPhotoId,
-                    grams: parseInt(grams)
-                })
-            });
-            
-            console.log('📡 Response status:', response.status);
-            console.log('📡 Response headers:', Object.fromEntries(response.headers.entries()));
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (!grams || grams <= 0) {
+                showMessage('Please enter a valid weight in grams', 'error');
+                return;
             }
             
-            const responseText = await response.text();
-            console.log('📄 Raw response text:', responseText);
-            
-            if (!responseText) {
-                throw new Error('Empty response from server');
-            }
-            
-            let data;
-            try {
-                data = JSON.parse(responseText);
-                console.log('✅ Parsed API Response:');
-                console.log('🔍 Full API JSON:', JSON.stringify(data, null, 2));
-                console.log('📊 Nutrition Data:', data.nutrition);
-                console.log('💳 Credits Remaining:', data.credits_remaining);
-            } catch (parseError) {
-                console.error('❌ JSON parse error:', parseError);
-                throw new Error('Invalid JSON response from server');
-            }
-            
-            if (data.message === 'insufficient_credits') {
-                console.log('💸 Insufficient credits detected');
+            const currentCredits = parseInt(document.getElementById('creditsDisplay').textContent);
+            if (currentCredits <= 0) {
                 showCreditsPopup();
                 return;
             }
             
-            if (data.status === 'success') {
-                console.log('🎉 Analysis successful!');
-                displayNutritionResults(data);
+            showSection('loading');
+            
+            try {
+                console.log('🔍 Starting nutrition analysis...');
+                console.log('📊 Request data:', {
+                    photo_id: currentPhotoId,
+                    grams: parseInt(grams),
+                    scan_type: selectedScanType
+                });
                 
-                if (data.credits_remaining !== undefined) {
-                    document.getElementById('creditsDisplay').textContent = data.credits_remaining;
+                const endpoint = selectedScanType === 'barcode' ? 
+                    '/trackgrams/analyze-barcode/' : 
+                    '/trackgrams/analyze/';
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        photo_id: currentPhotoId,
+                        grams: parseInt(grams)
+                    })
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
-                showMessage('Analysis completed!', 'success');
-            } else {
-                console.log('❌ Analysis failed:', data.message);
-                showMessage(data.message || 'Analysis failed', 'error');
+                const responseText = await response.text();
+                console.log('📄 Raw response text:', responseText);
+                
+                if (!responseText) {
+                    throw new Error('Empty response from server');
+                }
+                
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                    console.log('✅ Parsed API Response:', JSON.stringify(data, null, 2));
+                } catch (parseError) {
+                    console.error('❌ JSON parse error:', parseError);
+                    throw new Error('Invalid JSON response from server');
+                }
+                
+                if (data.message === 'insufficient_credits') {
+                    console.log('💸 Insufficient credits detected');
+                    showCreditsPopup();
+                    return;
+                }
+                
+                if (data.status === 'success') {
+                    console.log('🎉 Analysis successful!');
+                    displayNutritionResults(data);
+                    
+                    if (data.credits_remaining !== undefined) {
+                        document.getElementById('creditsDisplay').textContent = data.credits_remaining;
+                    }
+                    
+                    // Show product info for barcode scans
+                    if (selectedScanType === 'barcode' && data.product_info) {
+                        showMessage(`Found: ${data.product_info.product_name}`, 'success');
+                    } else {
+                        showMessage('Analysis completed!', 'success');
+                    }
+                } else {
+                    console.log('❌ Analysis failed:', data.message);
+                    showMessage(data.message || 'Analysis failed', 'error');
+                    showSection('photoPreview');
+                }
+            } catch (error) {
+                console.error('💥 Error during analysis:', error);
+                showMessage(`Network error: ${error.message}`, 'error');
                 showSection('photoPreview');
             }
-        } catch (error) {
-            console.error('💥 Error during analysis:', error);
-            showMessage(`Network error: ${error.message}`, 'error');
-            showSection('photoPreview');
         }
-    }
         
         function displayNutritionResults(data) {
             if (!data || !data.nutrition) {
@@ -734,7 +806,7 @@
             
             const nutrition = data.nutrition;
             
-            // Helper function to format numbers to 2 decimal places and remove trailing zeros
+            // Helper function to format numbers
             function formatNumber(value) {
                 const num = parseFloat(value) || 0;
                 return parseFloat(num.toFixed(2));
@@ -751,6 +823,11 @@
             document.getElementById('protein').textContent = currentNutritionData.protein;
             document.getElementById('carbs').textContent = currentNutritionData.carbs;
             document.getElementById('sugar').textContent = currentNutritionData.sugar;
+            
+            // Pre-fill food name for barcode scans
+            if (data.product_info && data.product_info.product_name) {
+                document.getElementById('foodNameInput').value = data.product_info.product_name;
+            }
             
             showSection('nutritionAnalysis');
         }

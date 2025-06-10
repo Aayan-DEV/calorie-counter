@@ -544,3 +544,170 @@ def delete_food_entry(request):
         'status': 'error',
         'message': 'Invalid request method'
     })
+
+async def call_barcode_api(image_file, grams, country="US"):
+    """Call your barcode nutrition API with image file and grams"""
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            files = {'image': image_file}
+            data = {
+                'grams': grams,
+                'country': country,
+                'force_method': 'auto'
+            }
+            headers = {
+                'Authorization': f'Bearer {settings.NUTRITION_API_KEY}'
+            }
+            
+            response = await client.post(
+                f"{settings.NUTRITION_API_URL}/analyze-nutrition-barcode",
+                files=files,
+                data=data,
+                headers=headers
+            )
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                return {
+                    'status': 'error',
+                    'message': f'API returned status {response.status_code}'
+                }
+                
+    except Exception as e:
+        return {
+            'status': 'error',
+            'message': f'API call failed: {str(e)}'
+        }
+
+@csrf_exempt
+@login_required
+def analyze_barcode(request):
+    """New endpoint to analyze nutrition using barcode API"""
+    if request.method == 'POST':
+        try:
+            # Check user credits
+            from credits.models import UserCredit
+            user_credit, created = UserCredit.objects.get_or_create(
+                user=request.user,
+                defaults={'total_credits': 0}
+            )
+            
+            if user_credit.total_credits <= 0:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'insufficient_credits',
+                    'credits_remaining': 0
+                })
+            
+            data = json.loads(request.body)
+            photo_id = data.get('photo_id')
+            grams = data.get('grams', 100)
+            
+            if not photo_id:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Photo ID is required'
+                })
+            
+            # Get photo from database
+            try:
+                photo = Photo.objects.get(id=photo_id, user=request.user)
+            except Photo.DoesNotExist:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Photo not found'
+                })
+            
+            # Download image from Supabase
+            import requests
+            image_response = requests.get(photo.image.url)
+            if image_response.status_code != 200:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Failed to download image'
+                })
+            
+            # Prepare image file for API
+            image_file = BytesIO(image_response.content)
+            image_file.name = f'barcode_{photo_id}.jpg'
+            
+            # Call barcode API
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            
+            try:
+                result = loop.run_until_complete(
+                    call_barcode_api(image_file, grams)
+                )
+                
+                print(f"Raw Barcode API Response: {result}")  # Debug logging
+                
+                if result.get('status') == 'success':
+                    # Deduct 1 credit
+                    user_credit.deduct_credits(1, "barcode_analysis")
+                    
+                    # Extract nutrition data from barcode API response
+                    nutrition_analysis = result.get('nutrition_analysis', {})
+                    nutrition_data = nutrition_analysis.get('nutrition_for_requested_grams', {})
+                    
+                    # Extract product information
+                    product_info = {
+                        'product_name': result.get('product_name', 'Unknown Product'),
+                        'brands': result.get('brands', ''),
+                        'barcode': result.get('barcode', ''),
+                        'nutrition_grade': result.get('nutrition_grade', '')
+                    }
+                    
+                    # Handle nutrition data
+                    calories = nutrition_data.get('calories', 0)
+                    protein = nutrition_data.get('protein_grams', 0)
+                    carbs = nutrition_data.get('carbs_grams', 0)
+                    sugar = nutrition_data.get('sugar_grams', 0)
+                    
+                    print(f"Barcode - Product: {product_info['product_name']}, Calories: {calories}, Protein: {protein}, Carbs: {carbs}, Sugar: {sugar}")
+                    
+                    # Format the response
+                    response_data = {
+                        'status': 'success',
+                        'nutrition': {
+                            'calories': float(calories) if calories else 0,
+                            'protein': float(protein) if protein else 0,
+                            'carbs': float(carbs) if carbs else 0,
+                            'sugar': float(sugar) if sugar else 0
+                        },
+                        'product_info': product_info,
+                        'credits_remaining': user_credit.total_credits,
+                        'debug_info': {
+                            'raw_api_response': result,
+                            'extracted_nutrition': nutrition_data
+                        }
+                    }
+                    return JsonResponse(response_data)
+                else:
+                    return JsonResponse({
+                        'status': 'error',
+                        'message': result.get('message', 'Barcode analysis failed'),
+                        'debug_info': result
+                    })
+                    
+            finally:
+                loop.close()
+                
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid JSON data'
+            })
+        except Exception as e:
+            print(f"Error in analyze_barcode: {str(e)}")
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            })
+    
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method'
+    })
